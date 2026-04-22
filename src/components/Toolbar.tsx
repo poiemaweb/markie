@@ -1,11 +1,7 @@
-import type { Platform, Theme } from '../types';
-import { PLATFORMS, PLATFORM_LABELS } from '../types';
+import type { Theme } from '../types';
 import { Icon } from './Icon';
 
 interface ToolbarProps {
-  platform: Platform;
-  manualPlatform: Platform | 'auto';
-  onPlatformChange: (value: Platform | 'auto') => void;
   theme: Theme;
   onThemeChange: (theme: Theme) => void;
   onPaste: () => void;
@@ -26,9 +22,6 @@ const THEMES: Array<{ value: Theme; label: string; icon: string }> = [
 
 export function Toolbar(props: ToolbarProps) {
   const {
-    platform,
-    manualPlatform,
-    onPlatformChange,
     theme,
     onThemeChange,
     onPaste,
@@ -49,20 +42,6 @@ export function Toolbar(props: ToolbarProps) {
         <span className="brand-tag">for messengers</span>
       </div>
       <div className="toolbar-group">
-        <label className="select-group" aria-label="플랫폼">
-          <span className="select-label">플랫폼</span>
-          <select
-            value={manualPlatform}
-            onChange={(e) => onPlatformChange(e.target.value as Platform | 'auto')}
-          >
-            <option value="auto">자동 · 현재 {PLATFORM_LABELS[platform]}</option>
-            {PLATFORMS.map((p) => (
-              <option key={p} value={p}>
-                {PLATFORM_LABELS[p]}
-              </option>
-            ))}
-          </select>
-        </label>
         <div className="segmented" role="radiogroup" aria-label="테마">
           {THEMES.map((t) => (
             <button
@@ -84,7 +63,7 @@ export function Toolbar(props: ToolbarProps) {
           <Icon name="solar:clipboard-text-bold" size={14} />
           <span>클립보드에서 불러오기</span>
         </button>
-        <button type="button" className="btn" onClick={onToggleSource}>
+        <button type="button" className="btn" onClick={onToggleSource} style={{ display: 'none' }}>
           <Icon name={showSource ? 'solar:eye-closed-bold' : 'solar:code-bold'} size={14} />
           <span>{showSource ? '소스 숨기기' : '원본 보기'}</span>
         </button>
@@ -98,7 +77,7 @@ export function Toolbar(props: ToolbarProps) {
           <Icon name="solar:gallery-bold" size={14} />
           <span>PNG</span>
         </button>
-        <button type="button" className="btn" onClick={onExportMd} title="Cmd/Ctrl+S">
+        <button type="button" className="btn" onClick={onExportMd} title="Cmd/Ctrl+S" style={{ display: 'none' }}>
           <Icon name="solar:download-minimalistic-bold" size={14} />
           <span>.md</span>
         </button>

@@ -37,7 +37,7 @@ type PanelMode = 'preview' | 'history' | 'settings';
 export function App() {
   const [rawText, setRawText] = useState<string>('');
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
-  const [manualPlatform, setManualPlatform] = useState<Platform | 'auto'>('auto');
+  const [manualPlatform, setManualPlatform] = useState<Platform | 'auto'>('raw');
   const [history, setHistory] = useState<HistoryEntry[]>(() => loadHistory());
   const [panel, setPanel] = useState<PanelMode>('preview');
   const [showSource, setShowSource] = useState(false);
@@ -215,9 +215,6 @@ export function App() {
   return (
     <div className="app-root">
       <Toolbar
-        platform={preprocessed.platform}
-        manualPlatform={manualPlatform}
-        onPlatformChange={setManualPlatform}
         theme={settings.theme}
         onThemeChange={(theme) => setSettings((s) => ({ ...s, theme }))}
         onPaste={pasteFromClipboard}
