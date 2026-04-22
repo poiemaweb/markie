@@ -66,18 +66,25 @@ export async function exportPng(previewHost: HTMLElement, filename = 'markdown.p
 }
 
 export async function exportPdf(previewHost: HTMLElement, filename = 'markdown.pdf'): Promise<void> {
-  const { canvas, bgElevated } = await captureArticle(previewHost, 2, 760);
+  // PNG과 동일하게 natural width로 캡처 — forceWidth는 html-to-image가 출력 크기로 오해해 clipping 발생
+  const { canvas, bgElevated } = await captureArticle(previewHost, 2);
 
   // canvas 크기(px) → PDF pt 단위 (A4 폭 595pt 기준)
   const a4W = 595;
   const scale = a4W / canvas.width;
-  const pdfH = canvas.height * scale;
+  const pdfH = Math.ceil(canvas.height * scale); // 반올림으로 미세 여백 제거
   const bgHex = resolveColorToHex(bgElevated);
 
-  const pdf = new jsPDF({ unit: 'pt', format: [a4W, pdfH], orientation: 'portrait' });
+  const pdf = new jsPDF({
+    unit: 'pt',
+    format: [a4W, pdfH],
+    orientation: 'portrait',
+    compress: true,
+  });
+  // 페이지 전체 배경 fill (하단 여백 보장)
   pdf.setFillColor(bgHex);
   pdf.rect(0, 0, a4W, pdfH, 'F');
-  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, a4W, pdfH);
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, a4W, pdfH, undefined, 'FAST');
   pdf.save(filename);
 }
 
