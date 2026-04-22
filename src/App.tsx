@@ -14,6 +14,11 @@ import { EmptyState } from './components/EmptyState';
 import { DownloadFlyout } from './components/DownloadFlyout';
 import { onPasteShortcut } from './tauri-bridge';
 
+const IS_MAC =
+  typeof navigator !== 'undefined' &&
+  /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent);
+const MOD_KEY = IS_MAC ? '⌘' : 'Ctrl';
+
 const SAMPLE_TEXT = [
   '# 🧪 샘플로 체험해보세요',
   '',
@@ -46,6 +51,18 @@ export function App() {
   const [status, setStatus] = useState<string>('');
   const [downloadAnim, setDownloadAnim] = useState<{ type: 'pdf' | 'png'; key: number } | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const rawInputRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleRawScroll = useCallback(() => {
+    const src = rawInputRef.current;
+    const dst = previewRef.current;
+    if (!src || !dst) return;
+    const srcMax = src.scrollHeight - src.clientHeight;
+    const dstMax = dst.scrollHeight - dst.clientHeight;
+    if (srcMax <= 0 || dstMax <= 0) return;
+    const ratio = src.scrollTop / srcMax;
+    dst.scrollTop = ratio * dstMax;
+  }, []);
 
   useEffect(() => {
     setRawText(SAMPLE_TEXT);
@@ -137,7 +154,7 @@ export function App() {
         notify('클립보드가 비어 있습니다');
         return;
       case 'denied':
-        notify('Cmd/Ctrl+V 로 직접 붙여넣어 주세요');
+        notify(`${MOD_KEY}+V 로 직접 붙여넣어 주세요`);
     }
   }, [applyPastedText, notify]);
 
@@ -268,9 +285,11 @@ export function App() {
             <span className="hint">여기에 붙여넣기 · {PLATFORM_LABELS[preprocessed.platform]}</span>
           </label>
           <textarea
+            ref={rawInputRef}
             className="raw-input"
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
+            onScroll={handleRawScroll}
             placeholder="텔레그램/슬랙/디스코드 답변을 붙여넣으세요..."
             spellCheck={false}
           />
@@ -303,7 +322,7 @@ export function App() {
       <footer className="statusbar">
         <span>{rawText.length.toLocaleString()} 문자</span>
         <span>감지 후보: {detection ? `${detection.platform} (${detection.score})` : '—'}</span>
-        <span className={status ? 'status live' : 'status'}>{status || 'Cmd/Ctrl+Enter 로 클립보드 붙여넣기'}</span>
+        <span className={status ? 'status live' : 'status'}>{status || `${MOD_KEY}+Enter 로 클립보드 붙여넣기`}</span>
       </footer>
       {panel === 'history' && (
         <HistoryPanel

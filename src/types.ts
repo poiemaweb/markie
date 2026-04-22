@@ -6,7 +6,7 @@ export const PLATFORM_LABELS: Record<Platform, string> = {
   telegram: 'Telegram',
   slack: 'Slack',
   discord: 'Discord',
-  raw: 'Raw Markdown',
+  raw: 'Markdown',
 };
 
 export type Theme = 'light' | 'dark' | 'sepia';

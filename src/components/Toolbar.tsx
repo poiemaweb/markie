@@ -20,6 +20,11 @@ const THEMES: Array<{ value: Theme; label: string; icon: string }> = [
   { value: 'sepia', label: 'Sepia', icon: 'solar:palette-bold' },
 ];
 
+const IS_MAC =
+  typeof navigator !== 'undefined' &&
+  /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent);
+const MOD = IS_MAC ? '⌘' : 'Ctrl';
+
 export function Toolbar(props: ToolbarProps) {
   const {
     theme,
@@ -59,7 +64,7 @@ export function Toolbar(props: ToolbarProps) {
         </div>
       </div>
       <div className="toolbar-group">
-        <button type="button" className="btn primary" onClick={onPaste} title="Cmd/Ctrl+Enter">
+        <button type="button" className="btn primary" onClick={onPaste} title={`${MOD}+Enter`}>
           <Icon name="solar:clipboard-text-bold" size={14} />
           <span>클립보드에서 불러오기</span>
         </button>
@@ -69,25 +74,25 @@ export function Toolbar(props: ToolbarProps) {
         </button>
       </div>
       <div className="toolbar-group">
-        <button type="button" className="btn" onClick={onExportPdf} title="Cmd/Ctrl+P">
+        <button type="button" className="btn" onClick={onExportPdf} title={`${MOD}+P`}>
           <Icon name="solar:file-text-bold" size={14} />
           <span>PDF</span>
         </button>
-        <button type="button" className="btn" onClick={onExportPng} title="Cmd/Ctrl+Shift+P">
+        <button type="button" className="btn" onClick={onExportPng} title={`${MOD}+Shift+P`}>
           <Icon name="solar:gallery-bold" size={14} />
           <span>PNG</span>
         </button>
-        <button type="button" className="btn" onClick={onExportMd} title="Cmd/Ctrl+S" style={{ display: 'none' }}>
+        <button type="button" className="btn" onClick={onExportMd} title={`${MOD}+S`} style={{ display: 'none' }}>
           <Icon name="solar:download-minimalistic-bold" size={14} />
           <span>.md</span>
         </button>
       </div>
       <div className="toolbar-group">
-        <button type="button" className="btn ghost" onClick={onOpenHistory} title="Cmd/Ctrl+H">
+        <button type="button" className="btn ghost" onClick={onOpenHistory} title={`${MOD}+H`}>
           <Icon name="solar:history-bold" size={14} />
           <span>히스토리</span>
         </button>
-        <button type="button" className="btn ghost" onClick={onOpenSettings} title="Cmd/Ctrl+,">
+        <button type="button" className="btn ghost" onClick={onOpenSettings} title={`${MOD}+,`}>
           <Icon name="solar:settings-bold" size={14} />
           <span>설정</span>
         </button>

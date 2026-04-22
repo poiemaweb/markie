@@ -1,5 +1,4 @@
-import type { Platform, Settings, Theme } from '../types';
-import { PLATFORMS, PLATFORM_LABELS } from '../types';
+import type { Settings, Theme } from '../types';
 
 interface SettingsPanelProps {
   settings: Settings;
@@ -8,6 +7,25 @@ interface SettingsPanelProps {
 }
 
 const THEMES: Theme[] = ['light', 'dark', 'sepia'];
+
+const IS_MAC =
+  typeof navigator !== 'undefined' &&
+  /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent);
+const MOD_KEY = IS_MAC ? '⌘' : 'Ctrl';
+
+interface ShortcutItem {
+  keys: string[];
+  label: string;
+}
+
+const SHORTCUTS: ShortcutItem[] = [
+  { keys: ['Mod', 'Enter'], label: '클립보드에서 렌더' },
+  { keys: ['Mod', 'P'], label: 'PDF 내보내기' },
+  { keys: ['Mod', 'Shift', 'P'], label: 'PNG 내보내기' },
+  { keys: ['Mod', 'H'], label: '히스토리 패널' },
+  { keys: ['Mod', ','], label: '설정 패널' },
+  { keys: ['Esc'], label: '패널 닫기' },
+];
 
 export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProps) {
   const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
@@ -55,32 +73,6 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
           </div>
         </section>
         <section className="settings-section">
-          <h3>자동 감지</h3>
-          <label className="switch-row">
-            <input
-              type="checkbox"
-              checked={settings.autoDetect}
-              onChange={(e) => update('autoDetect', e.target.checked)}
-            />
-            <span>붙여넣은 텍스트의 플랫폼을 자동으로 추정합니다.</span>
-          </label>
-          {!settings.autoDetect && (
-            <label className="select-group vertical">
-              <span className="select-label">기본 플랫폼</span>
-              <select
-                value={settings.preferredPlatform}
-                onChange={(e) => update('preferredPlatform', e.target.value as Platform)}
-              >
-                {PLATFORMS.map((p) => (
-                  <option key={p} value={p}>
-                    {PLATFORM_LABELS[p]}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
-        </section>
-        <section className="settings-section">
           <h3>히스토리</h3>
           <label className="switch-row">
             <input
@@ -94,18 +86,22 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
         <section className="settings-section">
           <h3>단축키</h3>
           <ul className="shortcut-list">
-            <li><kbd>Cmd/Ctrl</kbd> + <kbd>Enter</kbd> — 클립보드에서 렌더</li>
-            <li><kbd>Cmd/Ctrl</kbd> + <kbd>P</kbd> — PDF 내보내기</li>
-            <li><kbd>Cmd/Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> — PNG 내보내기</li>
-            <li><kbd>Cmd/Ctrl</kbd> + <kbd>S</kbd> — Markdown 저장</li>
-            <li><kbd>Cmd/Ctrl</kbd> + <kbd>H</kbd> — 히스토리</li>
-            <li><kbd>Cmd/Ctrl</kbd> + <kbd>,</kbd> — 설정</li>
-            <li><kbd>Cmd/Ctrl</kbd> + <kbd>1~4</kbd> — 플랫폼 수동 전환</li>
-            <li><kbd>Esc</kbd> — 패널 닫기</li>
+            {SHORTCUTS.map(({ keys, label }) => (
+              <li key={label}>
+                {keys.map((k, i) => (
+                  <span key={i}>
+                    {i > 0 && ' + '}
+                    <kbd>{k === 'Mod' ? MOD_KEY : k}</kbd>
+                  </span>
+                ))}
+                {' — '}
+                {label}
+              </li>
+            ))}
           </ul>
           <p className="subtle-note">
-            데스크탑 버전에서는 전역 단축키(Cmd/Ctrl+Shift+V)로 언제 어디서든 창을 불러올 수 있습니다.
-            현재 웹 MVP에서는 창에 포커스가 있어야 작동합니다.
+            데스크탑 앱에서는 전역 단축키 <kbd>{MOD_KEY}</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> 로
+            어느 창에서나 클립보드를 바로 불러올 수 있습니다. 웹에서는 창에 포커스가 있어야 동작합니다.
           </p>
         </section>
       </div>
