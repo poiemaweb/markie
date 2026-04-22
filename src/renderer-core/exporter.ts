@@ -1,46 +1,39 @@
 import { toCanvas } from 'html-to-image';
 import jsPDF from 'jspdf';
 
-// article을 제자리에서 캡처 후 canvas-level 패딩 적용 — DOM 이동 없음
+const EXPORT_WIDTH = 760;
+
 async function captureArticle(
   previewHost: HTMLElement,
   pixelRatio: number,
-  forceWidth?: number,
 ): Promise<{ canvas: HTMLCanvasElement; bgElevated: string }> {
   const article = previewHost.querySelector<HTMLElement>('.markdown-body') ?? previewHost;
   const bgElevated =
     getComputedStyle(document.documentElement).getPropertyValue('--bg-elevated').trim() ||
     '#ffffff';
 
-  // 폭 일시 확장 (style 변경만, DOM 이동 없음 → 스타일시트 정상 유지)
+  // 창 폭과 무관하게 일정한 너비로 캡처 — scrollWidth가 달라지면 우측 잘림 발생
   const prevWidth = article.style.width;
   const prevMaxWidth = article.style.maxWidth;
-  if (forceWidth) {
-    article.style.width = `${forceWidth}px`;
-    article.style.maxWidth = `${forceWidth}px`;
-    await new Promise<void>((r) => requestAnimationFrame(() => { requestAnimationFrame(() => r()); }));
-  }
-
-  // getBoundingClientRect는 flex 제약 폭/visible 높이를 반환 → scrollWidth/scrollHeight 명시 필수
-  const captureW = forceWidth ?? article.scrollWidth;
-  const captureH = article.scrollHeight;
+  const prevMinWidth = article.style.minWidth;
+  article.style.width = `${EXPORT_WIDTH}px`;
+  article.style.maxWidth = 'none';
+  article.style.minWidth = `${EXPORT_WIDTH}px`;
+  await new Promise<void>((r) => requestAnimationFrame(() => { requestAnimationFrame(() => r()); }));
 
   let srcCanvas: HTMLCanvasElement;
   try {
+    // width/height를 명시하지 않으면 html-to-image가 클론 후 직접 측정 — 명시 시 렌더 크기와 미묘하게 달라져 우측 잘림 발생
     srcCanvas = await toCanvas(article, {
       backgroundColor: bgElevated,
       pixelRatio,
-      width: captureW,
-      height: captureH,
     });
   } finally {
-    if (forceWidth) {
-      article.style.width = prevWidth;
-      article.style.maxWidth = prevMaxWidth;
-    }
+    article.style.width = prevWidth;
+    article.style.maxWidth = prevMaxWidth;
+    article.style.minWidth = prevMinWidth;
   }
 
-  // 패딩 40px을 canvas 레벨에서 추가
   const pad = 40 * pixelRatio;
   const dst = document.createElement('canvas');
   dst.width = srcCanvas.width + pad * 2;

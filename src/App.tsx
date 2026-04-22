@@ -10,6 +10,7 @@ import { Toolbar } from './components/Toolbar';
 import { HistoryPanel } from './components/HistoryPanel';
 import { SettingsPanel } from './components/SettingsPanel';
 import { EmptyState } from './components/EmptyState';
+import { DownloadFlyout } from './components/DownloadFlyout';
 import { onPasteShortcut, readClipboardText } from './tauri-bridge';
 
 const SAMPLE_TEXT = [
@@ -42,6 +43,7 @@ export function App() {
   const [panel, setPanel] = useState<PanelMode>('preview');
   const [showSource, setShowSource] = useState(false);
   const [status, setStatus] = useState<string>('');
+  const [downloadAnim, setDownloadAnim] = useState<{ type: 'pdf' | 'png'; key: number } | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -85,6 +87,11 @@ export function App() {
     }
   }, [preprocessed.text]);
 
+  const triggerDownloadAnim = useCallback((type: 'pdf' | 'png') => {
+    setDownloadAnim({ type, key: Date.now() });
+    window.setTimeout(() => setDownloadAnim(null), 950);
+  }, []);
+
   const notify = useCallback((message: string) => {
     setStatus(message);
     const id = window.setTimeout(() => setStatus(''), 2200);
@@ -115,21 +122,21 @@ export function App() {
     if (!previewRef.current) return;
     try {
       await exportPdf(previewRef.current, buildTimestampedFilename('pdf', preprocessed.platform));
-      notify('PDF 저장 완료');
+      triggerDownloadAnim('pdf');
     } catch (err) {
       notify(err instanceof Error ? err.message : 'PDF 저장 실패');
     }
-  }, [notify, preprocessed.platform]);
+  }, [notify, triggerDownloadAnim, preprocessed.platform]);
 
   const handleExportPng = useCallback(async () => {
     if (!previewRef.current) return;
     try {
       await exportPng(previewRef.current, buildTimestampedFilename('png', preprocessed.platform));
-      notify('PNG 저장 완료');
+      triggerDownloadAnim('png');
     } catch (err) {
       notify(err instanceof Error ? err.message : 'PNG 저장 실패');
     }
-  }, [notify, preprocessed.platform]);
+  }, [notify, triggerDownloadAnim, preprocessed.platform]);
 
   const handleExportMd = useCallback(() => {
     if (!preprocessed.text) return;
@@ -285,6 +292,9 @@ export function App() {
           onChange={setSettings}
           onClose={() => setPanel('preview')}
         />
+      )}
+      {downloadAnim && (
+        <DownloadFlyout key={downloadAnim.key} type={downloadAnim.type} />
       )}
     </div>
   );
