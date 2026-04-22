@@ -32,40 +32,34 @@ export async function exportPdf(previewHost: HTMLElement, filename = 'markdown.p
   const bgElevated = rootCs.getPropertyValue('--bg-elevated').trim() || '#ffffff';
 
   const pad = 40;
-  // 760px 고정 폭으로 오프스크린 렌더링 → 우측 잘림 방지
   const CONTENT_W = 760;
   const canvasW = CONTENT_W + pad * 2;
 
   const article = previewHost.querySelector<HTMLElement>('.markdown-body') ?? previewHost;
 
-  // 오프스크린 wrapper — position:absolute(fixed 아님)로 html-to-image가 렌더링 가능
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = `position:absolute;left:-9999px;top:0;width:${canvasW}px;background:${bgElevated};`;
-  const clone = article.cloneNode(true) as HTMLElement;
-  clone.style.cssText = `width:${CONTENT_W}px;max-width:${CONTENT_W}px;margin:0;padding:${pad}px;box-sizing:content-box;`;
-  // :root CSS 변수 전파
-  const varNames = ['--bg','--bg-elevated','--bg-subtle','--bg-code','--fg','--fg-muted',
-    '--fg-subtle','--border','--border-strong','--accent','--accent-soft',
-    '--radius-md','--radius-sm','--font-sans','--font-mono','--font-scale'];
-  for (const v of varNames) {
-    const val = rootCs.getPropertyValue(v).trim();
-    if (val) clone.style.setProperty(v, val);
-  }
-  wrapper.appendChild(clone);
-  document.body.appendChild(wrapper);
+  // 라이브 DOM 요소를 일시적으로 760px로 확장해 캡처 — 스타일시트가 정상 적용됨
+  const prevWidth = article.style.width;
+  const prevMaxWidth = article.style.maxWidth;
+  const prevMargin = article.style.margin;
+  article.style.width = `${CONTENT_W}px`;
+  article.style.maxWidth = `${CONTENT_W}px`;
+  article.style.margin = '0';
+
+  // 레이아웃 반영 대기
+  await new Promise<void>((r) => requestAnimationFrame(() => { requestAnimationFrame(() => r()); }));
 
   try {
-    const contentH = clone.scrollHeight;
-    const canvasH = contentH; // padding은 clone 자체에 포함됨
+    const canvasH = article.scrollHeight + pad * 2;
 
-    const dataUrl = await toPng(wrapper, {
+    const dataUrl = await toPng(article, {
       backgroundColor: bgElevated,
       pixelRatio: 2,
       width: canvasW,
       height: canvasH,
+      style: { padding: `${pad}px`, boxSizing: 'content-box' },
     });
 
-    // jsPDF: 테마 배경으로 전체 페이지 채운 뒤 이미지 덮기 → 하단 흰 여백 제거
+    // jsPDF: 테마 배경으로 전체 페이지 채운 뒤 이미지 → 하단 흰 여백 제거
     const a4W = 595;
     const scale = a4W / canvasW;
     const pdfH = canvasH * scale;
@@ -77,7 +71,10 @@ export async function exportPdf(previewHost: HTMLElement, filename = 'markdown.p
     pdf.addImage(dataUrl, 'PNG', 0, 0, a4W, pdfH);
     pdf.save(filename);
   } finally {
-    document.body.removeChild(wrapper);
+    // 원래 스타일 복원
+    article.style.width = prevWidth;
+    article.style.maxWidth = prevMaxWidth;
+    article.style.margin = prevMargin;
   }
 }
 
