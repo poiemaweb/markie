@@ -9,7 +9,9 @@ export async function exportPng(previewHost: HTMLElement, filename = 'markdown.p
   const dataUrl = await toPng(article, {
     backgroundColor: bgElevated,
     pixelRatio: window.devicePixelRatio || 1,
-    style: { padding: '32px 40px', maxWidth: 'none', margin: '0' },
+    // 스타일 오버라이드 없이 렌더링된 치수 그대로 캡처 → 테이블/코드블록 잘림 방지
+    width: article.scrollWidth,
+    height: article.scrollHeight,
   });
 
   const res = await fetch(dataUrl);
