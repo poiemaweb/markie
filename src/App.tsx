@@ -4,6 +4,7 @@ import { PLATFORMS, PLATFORM_LABELS } from './types';
 import { detectPlatform, preprocessAuto, preprocessFor } from './preprocessors';
 import { renderMarkdown } from './renderer-core/markdown';
 import { buildTimestampedFilename, exportMarkdown, exportPdf, exportPng } from './renderer-core/exporter';
+import { importFromClipboard, subscribeGlobalPaste } from './renderer-core/importer';
 import { appendHistory, clearHistory, loadHistory, removeHistory } from './store/history';
 import { loadSettings, saveSettings } from './store/settings';
 import { Toolbar } from './components/Toolbar';
@@ -11,7 +12,7 @@ import { HistoryPanel } from './components/HistoryPanel';
 import { SettingsPanel } from './components/SettingsPanel';
 import { EmptyState } from './components/EmptyState';
 import { DownloadFlyout } from './components/DownloadFlyout';
-import { onPasteShortcut, readClipboardText } from './tauri-bridge';
+import { onPasteShortcut } from './tauri-bridge';
 
 const SAMPLE_TEXT = [
   '# 🧪 샘플로 체험해보세요',
@@ -98,13 +99,8 @@ export function App() {
     return () => window.clearTimeout(id);
   }, []);
 
-  const pasteFromClipboard = useCallback(async () => {
-    try {
-      const text = await readClipboardText();
-      if (!text) {
-        notify('클립보드가 비어 있습니다');
-        return;
-      }
+  const applyPastedText = useCallback(
+    (text: string) => {
       setRawText(text);
       setPanel('preview');
       if (settings.historyEnabled) {
@@ -113,10 +109,25 @@ export function App() {
         setHistory(appendHistory(text, platform, true));
       }
       notify('클립보드 내용을 렌더링했습니다');
-    } catch {
-      notify('클립보드 권한이 없습니다. 직접 붙여넣어 주세요');
+    },
+    [settings.historyEnabled, notify],
+  );
+
+  const pasteFromClipboard = useCallback(async () => {
+    const result = await importFromClipboard();
+    switch (result.status) {
+      case 'ok':
+        applyPastedText(result.text);
+        return;
+      case 'empty':
+        notify('클립보드가 비어 있습니다');
+        return;
+      case 'denied':
+        notify('Cmd/Ctrl+V 로 직접 붙여넣어 주세요');
     }
-  }, [settings.historyEnabled, notify]);
+  }, [applyPastedText, notify]);
+
+  useEffect(() => subscribeGlobalPaste(applyPastedText), [applyPastedText]);
 
   const handleExportPdf = useCallback(async () => {
     if (!previewRef.current) return;
