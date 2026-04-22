@@ -21,9 +21,18 @@ async function captureArticle(
     await new Promise<void>((r) => requestAnimationFrame(() => { requestAnimationFrame(() => r()); }));
   }
 
+  // getBoundingClientRect는 flex 제약 폭/visible 높이를 반환 → scrollWidth/scrollHeight 명시 필수
+  const captureW = forceWidth ?? article.scrollWidth;
+  const captureH = article.scrollHeight;
+
   let srcCanvas: HTMLCanvasElement;
   try {
-    srcCanvas = await toCanvas(article, { backgroundColor: bgElevated, pixelRatio });
+    srcCanvas = await toCanvas(article, {
+      backgroundColor: bgElevated,
+      pixelRatio,
+      width: captureW,
+      height: captureH,
+    });
   } finally {
     if (forceWidth) {
       article.style.width = prevWidth;
