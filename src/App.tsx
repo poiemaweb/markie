@@ -88,9 +88,23 @@ export function App() {
     }
   }, [preprocessed.text]);
 
+  const downloadAnimTimerRef = useRef<number | null>(null);
   const triggerDownloadAnim = useCallback((type: 'pdf' | 'png') => {
     setDownloadAnim({ type, key: Date.now() });
-    window.setTimeout(() => setDownloadAnim(null), 950);
+    if (downloadAnimTimerRef.current !== null) {
+      window.clearTimeout(downloadAnimTimerRef.current);
+    }
+    downloadAnimTimerRef.current = window.setTimeout(() => {
+      setDownloadAnim(null);
+      downloadAnimTimerRef.current = null;
+    }, 950);
+  }, []);
+  useEffect(() => {
+    return () => {
+      if (downloadAnimTimerRef.current !== null) {
+        window.clearTimeout(downloadAnimTimerRef.current);
+      }
+    };
   }, []);
 
   const notify = useCallback((message: string) => {
@@ -219,13 +233,16 @@ export function App() {
   }, [pasteFromClipboard, handleExportMd, handleExportPdf, handleExportPng, panel]);
 
   useEffect(() => {
+    let cancelled = false;
     let unlisten: (() => void) | undefined;
     void onPasteShortcut(() => {
       void pasteFromClipboard();
     }).then((dispose) => {
-      unlisten = dispose;
+      if (cancelled) dispose();
+      else unlisten = dispose;
     });
     return () => {
+      cancelled = true;
       unlisten?.();
     };
   }, [pasteFromClipboard]);

@@ -3,7 +3,21 @@ import jsPDF from 'jspdf';
 
 const EXPORT_WIDTH = 760;
 
+// 동시 export 호출 시 article.style 스냅샷/복원이 서로 덮어써
+// 인라인 스타일이 영구히 760px로 고정되는 문제를 막기 위한 직렬화 락
+let captureQueue: Promise<unknown> = Promise.resolve();
+
 async function captureArticle(
+  previewHost: HTMLElement,
+  pixelRatio: number,
+): Promise<{ canvas: HTMLCanvasElement; bgElevated: string }> {
+  const run = async () => captureArticleLocked(previewHost, pixelRatio);
+  const pending = captureQueue.then(run, run);
+  captureQueue = pending.catch(() => undefined);
+  return pending;
+}
+
+async function captureArticleLocked(
   previewHost: HTMLElement,
   pixelRatio: number,
 ): Promise<{ canvas: HTMLCanvasElement; bgElevated: string }> {
@@ -99,9 +113,13 @@ function triggerDownload(blob: Blob, filename: string): void {
 
 /** "rgb(r,g,b)" 또는 "#rrggbb" → jsPDF용 hex */
 function resolveColorToHex(color: string): string {
-  const m = color.match(/rgb\(\s*(\d+),\s*(\d+),\s*(\d+)\s*\)/);
+  // rgb() / rgba() 모두 지원 — rgba의 alpha는 흰 배경 위로 합성해 불투명 hex로 근사
+  const m = color.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)/);
   if (m) {
-    return '#' + [m[1], m[2], m[3]].map((n) => parseInt(n).toString(16).padStart(2, '0')).join('');
+    const a = m[4] === undefined ? 1 : Math.max(0, Math.min(1, parseFloat(m[4])));
+    const blend = (c: number) => Math.round(c * a + 255 * (1 - a));
+    const rgb = [blend(parseInt(m[1])), blend(parseInt(m[2])), blend(parseInt(m[3]))];
+    return '#' + rgb.map((n) => n.toString(16).padStart(2, '0')).join('');
   }
   return color.startsWith('#') ? color : '#ffffff';
 }
