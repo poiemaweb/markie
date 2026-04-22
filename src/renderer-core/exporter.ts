@@ -6,12 +6,14 @@ export async function exportPng(previewHost: HTMLElement, filename = 'markdown.p
   const bgElevated = getComputedStyle(document.documentElement)
     .getPropertyValue('--bg-elevated').trim() || '#ffffff';
 
+  const pad = 40; // 상하좌우 여백(px)
   const dataUrl = await toPng(article, {
     backgroundColor: bgElevated,
     pixelRatio: window.devicePixelRatio || 1,
-    // 스타일 오버라이드 없이 렌더링된 치수 그대로 캡처 → 테이블/코드블록 잘림 방지
-    width: article.scrollWidth,
-    height: article.scrollHeight,
+    // 여백만큼 canvas 확장, maxWidth는 건드리지 않아 테이블 잘림 방지
+    width: article.scrollWidth + pad * 2,
+    height: article.scrollHeight + pad * 2,
+    style: { padding: `${pad}px`, boxSizing: 'content-box' },
   });
 
   const res = await fetch(dataUrl);
