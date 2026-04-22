@@ -3,7 +3,7 @@ import type { HistoryEntry, Platform, Settings } from './types';
 import { PLATFORMS, PLATFORM_LABELS } from './types';
 import { detectPlatform, preprocessAuto, preprocessFor } from './preprocessors';
 import { renderMarkdown } from './renderer-core/markdown';
-import { buildTimestampedFilename, exportMarkdown, exportPdfViaPrint, exportPng } from './renderer-core/exporter';
+import { buildTimestampedFilename, exportMarkdown, exportPdf, exportPng } from './renderer-core/exporter';
 import { appendHistory, clearHistory, loadHistory, removeHistory } from './store/history';
 import { loadSettings, saveSettings } from './store/settings';
 import { Toolbar } from './components/Toolbar';
@@ -111,9 +111,15 @@ export function App() {
     }
   }, [settings.historyEnabled, notify]);
 
-  const handleExportPdf = useCallback(() => {
-    exportPdfViaPrint();
-  }, []);
+  const handleExportPdf = useCallback(async () => {
+    if (!previewRef.current) return;
+    try {
+      await exportPdf(previewRef.current, buildTimestampedFilename('pdf', preprocessed.platform));
+      notify('PDF 저장 완료');
+    } catch (err) {
+      notify(err instanceof Error ? err.message : 'PDF 저장 실패');
+    }
+  }, [notify, preprocessed.platform]);
 
   const handleExportPng = useCallback(async () => {
     if (!previewRef.current) return;
