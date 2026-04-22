@@ -28,29 +28,68 @@ export function exportMarkdown(text: string, filename = 'note.md'): void {
 }
 
 export async function exportPdf(previewHost: HTMLElement, filename = 'markdown.pdf'): Promise<void> {
-  const article = previewHost.querySelector<HTMLElement>('.markdown-body') ?? previewHost;
-  const bgElevated = getComputedStyle(document.documentElement)
-    .getPropertyValue('--bg-elevated').trim() || '#ffffff';
+  const rootCs = getComputedStyle(document.documentElement);
+  const bgElevated = rootCs.getPropertyValue('--bg-elevated').trim() || '#ffffff';
 
   const pad = 40;
-  const dataUrl = await toPng(article, {
-    backgroundColor: bgElevated,
-    pixelRatio: 2, // PDF는 고해상도로 캡처
-    width: article.scrollWidth + pad * 2,
-    height: article.scrollHeight + pad * 2,
-    style: { padding: `${pad}px`, boxSizing: 'content-box' },
-  });
+  // 760px 고정 폭으로 오프스크린 렌더링 → 우측 잘림 방지
+  const CONTENT_W = 760;
+  const canvasW = CONTENT_W + pad * 2;
 
-  // 이미지 실제 크기(pt 단위) 계산 — A4 폭(595pt)에 맞게 비율 유지
-  const imgW = article.scrollWidth + pad * 2;
-  const imgH = article.scrollHeight + pad * 2;
-  const a4W = 595;
-  const scale = a4W / imgW;
-  const pdfH = imgH * scale;
+  const article = previewHost.querySelector<HTMLElement>('.markdown-body') ?? previewHost;
 
-  const pdf = new jsPDF({ unit: 'pt', format: [a4W, pdfH], orientation: 'portrait' });
-  pdf.addImage(dataUrl, 'PNG', 0, 0, a4W, pdfH);
-  pdf.save(filename);
+  // 오프스크린 wrapper — position:absolute(fixed 아님)로 html-to-image가 렌더링 가능
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = `position:absolute;left:-9999px;top:0;width:${canvasW}px;background:${bgElevated};`;
+  const clone = article.cloneNode(true) as HTMLElement;
+  clone.style.cssText = `width:${CONTENT_W}px;max-width:${CONTENT_W}px;margin:0;padding:${pad}px;box-sizing:content-box;`;
+  // :root CSS 변수 전파
+  const varNames = ['--bg','--bg-elevated','--bg-subtle','--bg-code','--fg','--fg-muted',
+    '--fg-subtle','--border','--border-strong','--accent','--accent-soft',
+    '--radius-md','--radius-sm','--font-sans','--font-mono','--font-scale'];
+  for (const v of varNames) {
+    const val = rootCs.getPropertyValue(v).trim();
+    if (val) clone.style.setProperty(v, val);
+  }
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  try {
+    const contentH = clone.scrollHeight;
+    const canvasH = contentH; // padding은 clone 자체에 포함됨
+
+    const dataUrl = await toPng(wrapper, {
+      backgroundColor: bgElevated,
+      pixelRatio: 2,
+      width: canvasW,
+      height: canvasH,
+    });
+
+    // jsPDF: 테마 배경으로 전체 페이지 채운 뒤 이미지 덮기 → 하단 흰 여백 제거
+    const a4W = 595;
+    const scale = a4W / canvasW;
+    const pdfH = canvasH * scale;
+    const bgHex = rgbToHex(bgElevated);
+
+    const pdf = new jsPDF({ unit: 'pt', format: [a4W, pdfH], orientation: 'portrait' });
+    pdf.setFillColor(bgHex);
+    pdf.rect(0, 0, a4W, pdfH, 'F');
+    pdf.addImage(dataUrl, 'PNG', 0, 0, a4W, pdfH);
+    pdf.save(filename);
+  } finally {
+    document.body.removeChild(wrapper);
+  }
+}
+
+/** "rgb(r, g, b)" 또는 "#rrggbb" 형태를 jsPDF용 hex 문자열로 변환 */
+function rgbToHex(color: string): string {
+  const m = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+  if (m) {
+    return '#' + [m[1], m[2], m[3]]
+      .map((n) => parseInt(n).toString(16).padStart(2, '0'))
+      .join('');
+  }
+  return color.startsWith('#') ? color : '#ffffff';
 }
 
 function triggerDownload(blob: Blob, filename: string): void {
