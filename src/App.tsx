@@ -19,6 +19,9 @@ const IS_MAC =
   /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent);
 const MOD_KEY = IS_MAC ? '⌘' : 'Ctrl';
 
+let mermaidIdCounter = 0;
+let mermaidInitialized = false;
+
 const SAMPLE_TEXT = [
   '# Markdown Preview',
   '',
@@ -122,24 +125,29 @@ export function App() {
 
     import('mermaid').then(({ default: mermaid }) => {
       if (cancelled) return;
-      mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
+      if (!mermaidInitialized) {
+        mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
+        mermaidInitialized = true;
+      }
 
-      nodes.forEach(async (node, i) => {
-        const code = node.textContent ?? '';
-        try {
-          const id = `mermaid-${Date.now()}-${i}`;
-          const { svg } = await mermaid.render(id, code);
-          if (!cancelled) {
-            node.innerHTML = svg;
-            node.className = 'mermaid-diagram';
+      void Promise.allSettled(
+        nodes.map(async (node) => {
+          const code = node.textContent ?? '';
+          const id = `mermaid-diagram-${mermaidIdCounter++}`;
+          try {
+            const { svg } = await mermaid.render(id, code);
+            if (!cancelled) {
+              node.innerHTML = svg;
+              node.className = 'mermaid-diagram';
+            }
+          } catch (err) {
+            if (!cancelled) {
+              node.textContent = `[Mermaid 오류: ${err instanceof Error ? err.message : String(err)}]`;
+              node.className = 'mermaid-error';
+            }
           }
-        } catch (err) {
-          if (!cancelled) {
-            node.textContent = `[Mermaid 오류: ${err instanceof Error ? err.message : String(err)}]`;
-            node.className = 'mermaid-error';
-          }
-        }
-      });
+        }),
+      );
     });
 
     return () => {
