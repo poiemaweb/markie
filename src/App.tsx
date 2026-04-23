@@ -110,6 +110,43 @@ export function App() {
     }
   }, [preprocessed.text]);
 
+  // Mermaid: render .mermaid-pending placeholders to SVG after html updates
+  useEffect(() => {
+    if (!previewRef.current) return;
+    const nodes = Array.from(
+      previewRef.current.querySelectorAll<HTMLDivElement>('.mermaid-pending'),
+    );
+    if (!nodes.length) return;
+
+    let cancelled = false;
+
+    import('mermaid').then(({ default: mermaid }) => {
+      if (cancelled) return;
+      mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
+
+      nodes.forEach(async (node, i) => {
+        const code = node.textContent ?? '';
+        try {
+          const id = `mermaid-${Date.now()}-${i}`;
+          const { svg } = await mermaid.render(id, code);
+          if (!cancelled) {
+            node.innerHTML = svg;
+            node.className = 'mermaid-diagram';
+          }
+        } catch (err) {
+          if (!cancelled) {
+            node.textContent = `[Mermaid 오류: ${err instanceof Error ? err.message : String(err)}]`;
+            node.className = 'mermaid-error';
+          }
+        }
+      });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [html]);
+
   const downloadAnimTimerRef = useRef<number | null>(null);
   const triggerDownloadAnim = useCallback((type: 'pdf' | 'png') => {
     setDownloadAnim({ type, key: Date.now() });
