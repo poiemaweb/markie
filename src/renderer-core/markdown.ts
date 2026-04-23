@@ -52,6 +52,24 @@ function createRenderer(): MarkdownIt {
     return defaultCheckbox ? defaultCheckbox(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options);
   };
 
+  // Mermaid: intercept fence blocks with lang="mermaid"
+  const defaultFence =
+    md.renderer.rules.fence ??
+    ((tokens, idx, opts, _env, self) => self.renderToken(tokens, idx, opts));
+
+  md.renderer.rules.fence = (tokens, idx, options, env, self) => {
+    const token = tokens[idx];
+    const lang = token.info.trim().toLowerCase();
+    if (lang === 'mermaid') {
+      const escaped = token.content
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      return `<div class="mermaid-pending">${escaped}</div>\n`;
+    }
+    return defaultFence(tokens, idx, options, env, self);
+  };
+
   return md;
 }
 
