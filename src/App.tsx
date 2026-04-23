@@ -132,7 +132,7 @@ export function App() {
 
       void Promise.allSettled(
         nodes.map(async (node) => {
-          const code = node.textContent ?? '';
+          const code = (node.textContent ?? '').trimEnd();
           const id = `mermaid-diagram-${mermaidIdCounter++}`;
           try {
             const { svg } = await mermaid.render(id, code);

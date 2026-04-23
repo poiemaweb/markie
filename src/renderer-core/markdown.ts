@@ -47,11 +47,6 @@ function createRenderer(): MarkdownIt {
     return defaultLinkOpen(tokens, idx, options, env, self);
   };
 
-  const defaultCheckbox = md.renderer.rules.list_item_open;
-  md.renderer.rules.list_item_open = (tokens, idx, options, env, self) => {
-    return defaultCheckbox ? defaultCheckbox(tokens, idx, options, env, self) : self.renderToken(tokens, idx, options);
-  };
-
   // Mermaid: intercept fence blocks with lang="mermaid"
   const defaultFence =
     md.renderer.rules.fence ??
