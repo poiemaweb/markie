@@ -337,7 +337,7 @@ export function App() {
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
             onScroll={handleRawScroll}
-            placeholder="텔레그램/슬랙/디스코드 답변을 붙여넣으세요..."
+            placeholder="마크다운 텍스트를 붙여넣거나 .md 파일을 드래그하세요..."
             spellCheck={false}
           />
         </section>
