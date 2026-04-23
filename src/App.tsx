@@ -12,7 +12,7 @@ import { HistoryPanel } from './components/HistoryPanel';
 import { SettingsPanel } from './components/SettingsPanel';
 import { EmptyState } from './components/EmptyState';
 import { DownloadFlyout } from './components/DownloadFlyout';
-import { onPasteShortcut } from './tauri-bridge';
+import { onPasteShortcut, onFileDragEnter, onFileDragLeave, onFileDrop, readTextFile, isTauri } from './tauri-bridge';
 
 const IS_MAC =
   typeof navigator !== 'undefined' &&
@@ -53,7 +53,6 @@ export function App() {
   const [isDragging, setIsDragging] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const rawInputRef = useRef<HTMLTextAreaElement>(null);
-  const dragCounterRef = useRef(0);
 
   const handleRawScroll = useCallback(() => {
     const src = rawInputRef.current;
@@ -162,39 +161,38 @@ export function App() {
 
   useEffect(() => subscribeGlobalPaste(applyPastedText), [applyPastedText]);
 
-  const handleDragEnter = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    dragCounterRef.current++;
-    if (e.dataTransfer.types.includes('Files')) setIsDragging(true);
-  }, []);
+  // Tauri: 네이티브 파일 드롭 이벤트 구독
+  useEffect(() => {
+    if (!isTauri()) return;
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-  }, []);
+    const unlisteners: Array<() => void> = [];
+    let cancelled = false;
 
-  const handleDragLeave = useCallback(() => {
-    dragCounterRef.current--;
-    if (dragCounterRef.current <= 0) {
-      dragCounterRef.current = 0;
-      setIsDragging(false);
-    }
-  }, []);
+    Promise.all([
+      onFileDragEnter((paths) => {
+        if (paths.some((p) => /\.(md|markdown)$/i.test(p))) setIsDragging(true);
+      }),
+      onFileDragLeave(() => setIsDragging(false)),
+      onFileDrop(async (paths) => {
+        setIsDragging(false);
+        const mdPath = paths.find((p) => /\.(md|markdown)$/i.test(p));
+        if (!mdPath) return;
+        try {
+          const text = await readTextFile(mdPath);
+          if (text) applyPastedText(text);
+        } catch (err) {
+          console.error('파일 읽기 실패', err);
+        }
+      }),
+    ]).then((fns) => {
+      if (cancelled) fns.forEach((fn) => fn());
+      else unlisteners.push(...fns);
+    });
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    dragCounterRef.current = 0;
-    setIsDragging(false);
-
-    const files = Array.from(e.dataTransfer.files);
-    const mdFile = files.find((f) => /\.(md|markdown)$/i.test(f.name));
-    if (!mdFile) return;
-
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const text = ev.target?.result as string;
-      if (text) applyPastedText(text);
+    return () => {
+      cancelled = true;
+      unlisteners.forEach((fn) => fn());
     };
-    reader.readAsText(mdFile, 'utf-8');
   }, [applyPastedText]);
 
   const handleExportPdf = useCallback(async () => {
@@ -302,13 +300,7 @@ export function App() {
   }, [pasteFromClipboard]);
 
   return (
-    <div
-      className="app-root"
-      onDragEnter={handleDragEnter}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-    >
+    <div className="app-root">
       {isDragging && (
         <div className="drag-overlay" aria-hidden="true">
           <div className="drag-overlay__card">

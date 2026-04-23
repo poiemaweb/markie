@@ -12,6 +12,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             clipboard::read_clipboard_text,
             clipboard::write_clipboard_text,
+            clipboard::read_text_file,
         ])
         .setup(|app| {
             tray::create_tray(app.handle())?;

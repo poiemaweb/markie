@@ -33,3 +33,29 @@ export async function onPasteShortcut(handler: () => void): Promise<() => void> 
     return () => {};
   }
 }
+
+export async function readTextFile(path: string): Promise<string> {
+  const { invoke } = await import('@tauri-apps/api/core');
+  return invoke<string>('read_text_file', { path });
+}
+
+type DragEnterPayload = { paths: string[]; position: { x: number; y: number } };
+type DragDropPayload  = { paths: string[]; position: { x: number; y: number } };
+
+export async function onFileDragEnter(handler: (paths: string[]) => void): Promise<() => void> {
+  if (!isTauri()) return () => {};
+  const { listen } = await import('@tauri-apps/api/event');
+  return listen<DragEnterPayload>('tauri://drag-enter', (e) => handler(e.payload.paths));
+}
+
+export async function onFileDragLeave(handler: () => void): Promise<() => void> {
+  if (!isTauri()) return () => {};
+  const { listen } = await import('@tauri-apps/api/event');
+  return listen('tauri://drag-leave', () => handler());
+}
+
+export async function onFileDrop(handler: (paths: string[]) => void): Promise<() => void> {
+  if (!isTauri()) return () => {};
+  const { listen } = await import('@tauri-apps/api/event');
+  return listen<DragDropPayload>('tauri://drag-drop', (e) => handler(e.payload.paths));
+}
