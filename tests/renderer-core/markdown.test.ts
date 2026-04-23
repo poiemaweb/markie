@@ -13,6 +13,7 @@ describe('renderMarkdown — mermaid fence', () => {
     const input = '```mermaid\ngraph TD\n  A["<클라이언트>"] --> B\n```';
     const html = renderMarkdown(input);
     expect(html).toContain('&lt;클라이언트&gt;');
+    expect(html).toContain('&quot;');
   });
 
   it('textContent로 읽으면 원본 코드가 복원된다', () => {

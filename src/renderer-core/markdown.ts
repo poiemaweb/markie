@@ -59,12 +59,13 @@ function createRenderer(): MarkdownIt {
 
   md.renderer.rules.fence = (tokens, idx, options, env, self) => {
     const token = tokens[idx];
-    const lang = token.info.trim().toLowerCase();
+    const lang = token.info.trim().split(/\s+/)[0].toLowerCase();
     if (lang === 'mermaid') {
       const escaped = token.content
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
       return `<div class="mermaid-pending">${escaped}</div>\n`;
     }
     return defaultFence(tokens, idx, options, env, self);
