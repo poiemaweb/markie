@@ -50,8 +50,10 @@ export function App() {
   const [showSource, setShowSource] = useState(false);
   const [status, setStatus] = useState<string>('');
   const [downloadAnim, setDownloadAnim] = useState<{ type: 'pdf' | 'png'; key: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const rawInputRef = useRef<HTMLTextAreaElement>(null);
+  const dragCounterRef = useRef(0);
 
   const handleRawScroll = useCallback(() => {
     const src = rawInputRef.current;
@@ -160,6 +162,41 @@ export function App() {
 
   useEffect(() => subscribeGlobalPaste(applyPastedText), [applyPastedText]);
 
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounterRef.current++;
+    if (e.dataTransfer.types.includes('Files')) setIsDragging(true);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    dragCounterRef.current--;
+    if (dragCounterRef.current <= 0) {
+      dragCounterRef.current = 0;
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    dragCounterRef.current = 0;
+    setIsDragging(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    const mdFile = files.find((f) => /\.(md|markdown)$/i.test(f.name));
+    if (!mdFile) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const text = ev.target?.result as string;
+      if (text) applyPastedText(text);
+    };
+    reader.readAsText(mdFile, 'utf-8');
+  }, [applyPastedText]);
+
   const handleExportPdf = useCallback(async () => {
     if (!previewRef.current) return;
     try {
@@ -265,7 +302,21 @@ export function App() {
   }, [pasteFromClipboard]);
 
   return (
-    <div className="app-root">
+    <div
+      className="app-root"
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {isDragging && (
+        <div className="drag-overlay" aria-hidden="true">
+          <div className="drag-overlay__card">
+            <span className="drag-overlay__icon">↓</span>
+            <span className="drag-overlay__label">.md 파일을 놓으세요</span>
+          </div>
+        </div>
+      )}
       <Toolbar
         theme={settings.theme}
         onThemeChange={(theme) => setSettings((s) => ({ ...s, theme }))}

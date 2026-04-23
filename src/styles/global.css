@@ -653,6 +653,54 @@ iconify-icon {
   line-height: 1.55;
 }
 
+/* ── Drag & drop overlay ── */
+.drag-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: var(--accent-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: drag-in 0.15s ease;
+}
+
+.drag-overlay__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-elevated);
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius-lg);
+  padding: 40px 64px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.18);
+}
+
+.drag-overlay__icon {
+  font-size: 36px;
+  color: var(--accent);
+  animation: drag-bounce 0.6s ease infinite alternate;
+}
+
+.drag-overlay__label {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+}
+
+@keyframes drag-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes drag-bounce {
+  from { transform: translateY(-4px); }
+  to   { transform: translateY(4px); }
+}
+
 /* ── Download fly-to-dock animation ── */
 .dl-flyout {
   position: fixed;
