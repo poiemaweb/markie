@@ -409,10 +409,6 @@ export function App() {
         <section className="preview-pane" aria-label="미리보기">
           <div className="pane-heading">
             <span>렌더링 결과</span>
-            <span className="hint">
-              {preprocessed.autoDetected ? '자동 감지' : '수동'} ·{' '}
-              {preprocessed.notes.length ? preprocessed.notes.join(', ') : '특이 징후 없음'}
-            </span>
           </div>
           {html ? (
             <div ref={previewRef} className="preview-host">
