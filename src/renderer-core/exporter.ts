@@ -26,7 +26,15 @@ async function captureArticleLocked(
     getComputedStyle(document.documentElement).getPropertyValue('--bg-elevated').trim() ||
     '#ffffff';
 
-  // 창 폭과 무관하게 일정한 너비로 캡처 — scrollWidth가 달라지면 우측 잘림 발생
+  // 스크롤 위치 리셋 — html-to-image는 getBoundingClientRect 기준으로 클론을 배치하므로
+  // 스크롤된 상태면 article이 뷰포트 밖으로 밀려 캡처가 틀어짐
+  const prevScrollTop = previewHost.scrollTop;
+  const prevOverflow = previewHost.style.overflow;
+  previewHost.scrollTop = 0;
+  // overflow:hidden으로 article 너비 변경 시 레이아웃 깜빡임 방지
+  previewHost.style.overflow = 'hidden';
+
+  // 창 폭과 무관하게 일정한 너비로 캡처
   const prevWidth = article.style.width;
   const prevMaxWidth = article.style.maxWidth;
   const prevMinWidth = article.style.minWidth;
@@ -37,7 +45,6 @@ async function captureArticleLocked(
 
   let srcCanvas: HTMLCanvasElement;
   try {
-    // width/height를 명시하지 않으면 html-to-image가 클론 후 직접 측정 — 명시 시 렌더 크기와 미묘하게 달라져 우측 잘림 발생
     srcCanvas = await toCanvas(article, {
       backgroundColor: bgElevated,
       pixelRatio,
@@ -46,6 +53,8 @@ async function captureArticleLocked(
     article.style.width = prevWidth;
     article.style.maxWidth = prevMaxWidth;
     article.style.minWidth = prevMinWidth;
+    previewHost.style.overflow = prevOverflow;
+    previewHost.scrollTop = prevScrollTop;
   }
 
   const pad = 40 * pixelRatio;
@@ -79,7 +88,7 @@ export async function exportPdf(previewHost: HTMLElement, filename = 'markdown.p
   // canvas 크기(px) → PDF pt 단위 (A4 폭 595pt 기준)
   const a4W = 595;
   const scale = a4W / canvas.width;
-  const pdfH = Math.ceil(canvas.height * scale); // 반올림으로 미세 여백 제거
+  const pdfH = canvas.height * scale; // 비율 그대로 유지 — 반올림하면 세로 미세 왜곡 발생
   const bgHex = resolveColorToHex(bgElevated);
 
   const pdf = new jsPDF({

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import type { Theme } from '../types';
 import { Icon } from './Icon';
 
@@ -39,6 +40,20 @@ export function Toolbar(props: ToolbarProps) {
     onToggleSource,
   } = props;
 
+  const [exportOpen, setExportOpen] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!exportOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (exportRef.current && !exportRef.current.contains(e.target as Node)) {
+        setExportOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [exportOpen]);
+
   return (
     <header className="toolbar" role="toolbar">
       <div className="brand">
@@ -72,19 +87,53 @@ export function Toolbar(props: ToolbarProps) {
           <span>{showSource ? '소스 숨기기' : '원본 보기'}</span>
         </button>
       </div>
-      <div className="toolbar-group">
-        <button type="button" className="btn" onClick={onExportPdf} title={`${MOD}+P`}>
-          <Icon name="solar:file-text-bold" size={14} />
-          <span>PDF</span>
-        </button>
-        <button type="button" className="btn" onClick={onExportPng} title={`${MOD}+Shift+P`}>
-          <Icon name="solar:gallery-bold" size={14} />
-          <span>PNG</span>
-        </button>
-        <button type="button" className="btn" onClick={onExportMd} title={`${MOD}+S`} style={{ display: 'none' }}>
+      <div className="toolbar-group" ref={exportRef} style={{ position: 'relative' }}>
+        <button
+          type="button"
+          className={`btn${exportOpen ? ' active' : ''}`}
+          onClick={() => setExportOpen((v) => !v)}
+          aria-haspopup="true"
+          aria-expanded={exportOpen}
+        >
           <Icon name="solar:download-minimalistic-bold" size={14} />
-          <span>.md</span>
+          <span>내보내기</span>
+          <Icon name={exportOpen ? 'solar:alt-arrow-up-bold' : 'solar:alt-arrow-down-bold'} size={12} />
         </button>
+        <div className={`export-menu${exportOpen ? ' export-menu--open' : ''}`} role="menu" aria-hidden={!exportOpen}>
+          <button
+            type="button"
+            role="menuitem"
+            className="export-menu-item"
+            tabIndex={exportOpen ? 0 : -1}
+            onClick={() => { onExportPdf(); setExportOpen(false); }}
+            title={`${MOD}+P`}
+          >
+            <Icon name="solar:file-text-bold" size={14} />
+            <span>PDF 내보내기</span>
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="export-menu-item"
+            tabIndex={exportOpen ? 0 : -1}
+            onClick={() => { onExportPng(); setExportOpen(false); }}
+            title={`${MOD}+Shift+P`}
+          >
+            <Icon name="solar:gallery-bold" size={14} />
+            <span>PNG 내보내기</span>
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="export-menu-item"
+            tabIndex={exportOpen ? 0 : -1}
+            onClick={() => { onExportMd(); setExportOpen(false); }}
+            title={`${MOD}+S`}
+          >
+            <Icon name="solar:document-text-bold" size={14} />
+            <span>MD 내보내기</span>
+          </button>
+        </div>
       </div>
       <div className="toolbar-group">
         <button type="button" className="btn ghost" onClick={onOpenHistory} title={`${MOD}+H`}>

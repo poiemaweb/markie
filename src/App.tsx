@@ -57,7 +57,7 @@ export function App() {
   const [panel, setPanel] = useState<PanelMode>('preview');
   const [showSource, setShowSource] = useState(false);
   const [status, setStatus] = useState<string>('');
-  const [downloadAnim, setDownloadAnim] = useState<{ type: 'pdf' | 'png'; key: number } | null>(null);
+  const [downloadAnim, setDownloadAnim] = useState<{ type: 'pdf' | 'png' | 'md'; key: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const rawInputRef = useRef<HTMLTextAreaElement>(null);
@@ -174,7 +174,7 @@ export function App() {
   }, [html]);
 
   const downloadAnimTimerRef = useRef<number | null>(null);
-  const triggerDownloadAnim = useCallback((type: 'pdf' | 'png') => {
+  const triggerDownloadAnim = useCallback((type: 'pdf' | 'png' | 'md') => {
     setDownloadAnim({ type, key: Date.now() });
     if (downloadAnimTimerRef.current !== null) {
       window.clearTimeout(downloadAnimTimerRef.current);
@@ -286,8 +286,8 @@ export function App() {
   const handleExportMd = useCallback(() => {
     if (!preprocessed.text) return;
     exportMarkdown(preprocessed.text, buildTimestampedFilename('md', preprocessed.platform));
-    notify('Markdown 저장 완료');
-  }, [preprocessed.text, preprocessed.platform, notify]);
+    triggerDownloadAnim('md');
+  }, [preprocessed.text, preprocessed.platform, triggerDownloadAnim]);
 
   const handleSelectHistory = useCallback((entry: HistoryEntry) => {
     setRawText(entry.rawText);

@@ -231,6 +231,56 @@ iconify-icon {
   color: var(--fg);
 }
 
+.btn.active {
+  background: var(--bg-subtle);
+  border-color: var(--border-strong);
+}
+
+/* ── Export dropdown menu ── */
+.export-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 160px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md, 0 4px 16px rgba(0,0,0,.12));
+  z-index: 200;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-6px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.export-menu--open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.export-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  background: transparent;
+  border: none;
+  color: var(--fg);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background-color 80ms ease;
+}
+
+.export-menu-item:hover {
+  background: var(--bg-subtle);
+}
+
 .segmented {
   display: inline-flex;
   border: 1px solid var(--border);
@@ -726,6 +776,7 @@ iconify-icon {
 
 .dl-flyout__card--pdf { background: #e8413c; color: #fff; }
 .dl-flyout__card--png { background: #2e7cf6; color: #fff; }
+.dl-flyout__card--md  { background: #7c3aed; color: #fff; }
 
 .dl-flyout__file {
   width: 28px;
