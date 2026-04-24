@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ClipboardEvent as ReactClipboardEvent } from 'react';
 import type { HistoryEntry, Platform, Settings } from './types';
 import { PLATFORMS, PLATFORM_LABELS } from './types';
 import { detectPlatform, preprocessAuto, preprocessFor } from './preprocessors';
 import { renderMarkdown } from './renderer-core/markdown';
 import { buildTimestampedFilename, exportMarkdown, exportPdf, exportPng } from './renderer-core/exporter';
-import { importFromClipboard, subscribeGlobalPaste } from './renderer-core/importer';
+import { importFromClipboard, normalizeImportedText, subscribeGlobalPaste } from './renderer-core/importer';
 import { appendHistory, clearHistory, loadHistory, removeHistory } from './store/history';
 import { loadSettings, saveSettings } from './store/settings';
 import { Toolbar } from './components/Toolbar';
@@ -60,6 +61,23 @@ export function App() {
   const [isDragging, setIsDragging] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const rawInputRef = useRef<HTMLTextAreaElement>(null);
+
+  const handleRawPaste = useCallback((e: ReactClipboardEvent<HTMLTextAreaElement>) => {
+    const raw = e.clipboardData.getData('text/plain');
+    if (!raw) return;
+    const normalized = normalizeImportedText(raw);
+    // 정규화로 변경점이 없으면 브라우저 기본 paste 유지(실행취소 스택 보존)
+    if (normalized === raw.replace(/\r\n?/g, '\n')) return;
+    e.preventDefault();
+    const ta = e.currentTarget;
+    const { selectionStart, selectionEnd, value } = ta;
+    const next = value.slice(0, selectionStart) + normalized + value.slice(selectionEnd);
+    setRawText(next);
+    const caret = selectionStart + normalized.length;
+    requestAnimationFrame(() => {
+      ta.selectionStart = ta.selectionEnd = caret;
+    });
+  }, []);
 
   const handleRawScroll = useCallback(() => {
     const src = rawInputRef.current;
@@ -227,7 +245,8 @@ export function App() {
         const mdPath = paths.find((p) => /\.(md|markdown)$/i.test(p));
         if (!mdPath) return;
         try {
-          const text = await readTextFile(mdPath);
+          const raw = await readTextFile(mdPath);
+          const text = normalizeImportedText(raw);
           if (text) applyPastedText(text);
         } catch (err) {
           console.error('파일 읽기 실패', err);
@@ -381,6 +400,7 @@ export function App() {
             className="raw-input"
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
+            onPaste={handleRawPaste}
             onScroll={handleRawScroll}
             placeholder="마크다운 텍스트를 붙여넣거나 .md 파일을 드래그하세요..."
             spellCheck={false}
