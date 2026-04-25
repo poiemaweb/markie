@@ -1,59 +1,59 @@
 # Markie
 
-마크다운 텍스트를 즉시 예쁘게 렌더링해주는 초경량 컴패니언.
-현재 저장소는 **웹 MVP(v0.1)** 단계이며, 이후 단계에서 Tauri 또는 Electron 래퍼를 씌워 트레이 상주 + 전역 단축키 앱으로 확장됩니다.
+An ultra-lightweight companion that renders markdown text beautifully in real-time.
+This repository is currently in the **Web MVP (v0.1)** phase, with plans to wrap it in Tauri or Electron in future stages to extend it into a tray-resident app with global shortcuts.
 
 ---
 
-## 빠른 시작
+## Quick Start
 
 ```bash
 npm install
 npm run dev          # http://localhost:5173
-npm run build        # 정적 번들 (dist/)
+npm run build        # Static bundle (dist/)
 
-# 데스크탑 앱 (Node 18+ / Rust 1.77+ 필요)
-npm run tauri:dev    # 트레이 상주 + 전역 단축키
-npm run tauri:build  # .dmg / .msi / .AppImage 번들
+# Desktop app (Node 18+ / Rust 1.77+ required)
+npm run tauri:dev    # Tray resident + global shortcuts
+npm run tauri:build  # .dmg / .msi / .AppImage bundles
 ```
 
-> 웹 렌더러는 Node 16 + vite 4 조합으로도 동작하도록 고정. Tauri 래퍼를 실제로 빌드하려면 Node 18+·Rust 1.77+·OS별 WebView 툴체인이 필요합니다.
+> The web renderer is pinned to Node 16 + vite 4 for compatibility. Building the Tauri wrapper requires Node 18+ · Rust 1.77+ · OS-specific WebView toolchains.
 
 ---
 
-## 무엇이 들어있나
+## What's Inside
 
-- **렌더러 코어** (`src/renderer-core/`)
+- **Renderer Core** (`src/renderer-core/`)
   - `markdown.ts` · markdown-it(GFM) + highlight.js
-  - `exporter.ts` · PNG(html-to-image), PDF(jsPDF), .md 다운로드
-  - `importer.ts` · 텍스트 정규화, 클립보드 및 파일 임포트
+  - `exporter.ts` · PNG(html-to-image), PDF(jsPDF), .md download
+  - `importer.ts` · Text normalization, clipboard and file import
 - **UI** (`src/components/`)
-  - Light/Dark/Sepia 테마, 폰트 스케일 80~160%
-  - 좌측 원본 · 우측 렌더 2분할
-  - 히스토리 50개(localStorage) + 설정 패널 + 단축키 (Cmd/Ctrl+Enter 등)
+  - Light/Dark/Sepia themes, font scale 80~160%
+  - Split pane: source on left, rendered on right
+  - History 50 entries (localStorage) + settings panel + shortcuts (Cmd/Ctrl+Enter, etc.)
 
 ---
 
-## 단축키 (웹 MVP 기준)
+## Keyboard Shortcuts (Web MVP)
 
-| 단축키 | 동작 |
+| Shortcut | Action |
 | --- | --- |
-| `Cmd/Ctrl` + `Enter` | 클립보드에서 불러와 렌더 |
-| `Cmd/Ctrl` + `P` | PDF 내보내기 |
-| `Cmd/Ctrl` + `Shift` + `P` | PNG 내보내기 |
-| `Cmd/Ctrl` + `S` | Markdown 파일로 저장 |
-| `Cmd/Ctrl` + `H` | 히스토리 패널 토글 |
-| `Cmd/Ctrl` + `,` | 설정 패널 토글 |
-| `Esc` | 열린 패널 닫기 |
+| `Cmd/Ctrl` + `Enter` | Import from clipboard and render |
+| `Cmd/Ctrl` + `P` | Export PDF |
+| `Cmd/Ctrl` + `Shift` + `P` | Export PNG |
+| `Cmd/Ctrl` + `S` | Save as Markdown file |
+| `Cmd/Ctrl` + `H` | Toggle history panel |
+| `Cmd/Ctrl` + `,` | Toggle settings panel |
+| `Esc` | Close open panels |
 
-데스크탑 래퍼(다음 단계)에서는 **전역** `Cmd/Ctrl+Shift+V` 로 창에 포커스가 없어도 호출 가능하게 확장됩니다.
+The desktop wrapper (next phase) will extend this with a **global** `Cmd/Ctrl+Shift+V` shortcut that works even when the window is not focused.
 
 ---
 
-## 아키텍처 메모
+## Architecture Notes
 
 ```
-markdown-preview-companion/
+markie/
 ├── package.json
 ├── tsconfig.json · tsconfig.node.json
 ├── vite.config.ts
@@ -61,23 +61,23 @@ markdown-preview-companion/
 ├── index.html · README.md
 ├── public/
 │   └── vite.svg
-├── src-tauri/                    # Rust 백엔드 (Tauri 2 스캐폴드)
+├── src-tauri/                    # Rust backend (Tauri 2 scaffold)
 │   ├── Cargo.toml · build.rs · tauri.conf.json
 │   ├── capabilities/default.json
 │   └── src/
-│       ├── main.rs               # 앱 진입점 + 윈도우 라이프사이클
+│       ├── main.rs               # App entry point + window lifecycle
 │       ├── clipboard.rs          # read/write_clipboard_text IPC
-│       ├── shortcut.rs           # Cmd/Ctrl+Shift+V 전역 단축키
-│       └── tray.rs               # 트레이 아이콘 + 컨텍스트 메뉴
-└── src/                          # React 프론트엔드
+│       ├── shortcut.rs           # Cmd/Ctrl+Shift+V global shortcut
+│       └── tray.rs               # Tray icon + context menu
+└── src/                          # React frontend
     ├── main.tsx · App.tsx
-    ├── types.ts                  # Settings, HistoryEntry 공용 타입
-    ├── tauri-bridge.ts           # Tauri IPC 어댑터 (웹 폴백 내장)
+    ├── types.ts                  # Settings, HistoryEntry shared types
+    ├── tauri-bridge.ts           # Tauri IPC adapter (with web fallback)
     ├── components/               # Toolbar, HistoryPanel, SettingsPanel, EmptyState, DownloadFlyout
     ├── renderer-core/
     │   ├── markdown.ts           # markdown-it + highlight.js
-    │   ├── exporter.ts           # PNG / PDF / .md 내보내기
-    │   └── importer.ts           # 텍스트 정규화, 클립보드/파일 임포트
+    │   ├── exporter.ts           # PNG / PDF / .md export
+    │   └── importer.ts           # Text normalization, clipboard/file import
     ├── store/
     │   └── history.ts · settings.ts
     └── styles/                   # global + markdown + highlight.css
@@ -85,15 +85,15 @@ markdown-preview-companion/
 
 ---
 
-## 다음 마일스톤
+## Next Milestones
 
-- **M3 (스캐폴드 완료)**: `src-tauri/` Rust 백엔드 — 트레이, 전역 단축키, 클립보드 IPC
-  - `tauri-bridge.ts`가 `window.__TAURI__` 존재 여부로 웹/데스크탑을 자동 분기
-  - 실제 실행은 Node 18+ · Rust 1.77+ 환경에서 `npm run tauri:dev`
-- **M5**: KaTeX · Mermaid · SQLite 히스토리 전환
+- **M3 (Scaffold Complete)**: `src-tauri/` Rust backend — tray, global shortcuts, clipboard IPC
+  - `tauri-bridge.ts` auto-branches between web/desktop based on `window.__TAURI__` presence
+  - Actual execution requires Node 18+ · Rust 1.77+ environment via `npm run tauri:dev`
+- **M5**: KaTeX · Mermaid · SQLite history migration
 
 ---
 
-## 라이선스
+## License
 
-내부 프로젝트. 외부 공개 시 라이선스 결정 필요.
+Internal project. License to be determined upon public release.

@@ -1,5 +1,6 @@
 import type { HistoryEntry } from '../types';
 
+const OLD_HISTORY_KEY = 'mdpreview.history.v1';
 const HISTORY_KEY = 'markie.history.v1';
 const MAX_ENTRIES = 50;
 
@@ -13,7 +14,23 @@ function safeParse<T>(raw: string | null, fallback: T): T {
 }
 
 export function loadHistory(): HistoryEntry[] {
-  return safeParse<HistoryEntry[]>(localStorage.getItem(HISTORY_KEY), []);
+  const existing = localStorage.getItem(HISTORY_KEY);
+  if (existing) return safeParse<HistoryEntry[]>(existing, []);
+  
+  const oldData = localStorage.getItem(OLD_HISTORY_KEY);
+  if (oldData) {
+    const oldEntries = safeParse<any[]>(oldData, []);
+    const migrated: HistoryEntry[] = oldEntries.map(entry => ({
+      id: entry.id,
+      createdAt: entry.createdAt,
+      rawText: entry.rawText,
+      preview: entry.preview,
+    }));
+    saveHistory(migrated);
+    localStorage.removeItem(OLD_HISTORY_KEY);
+    return migrated;
+  }
+  return [];
 }
 
 export function saveHistory(entries: HistoryEntry[]): void {
