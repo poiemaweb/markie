@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Theme } from '../types';
 import { Icon } from './Icon';
 import { t } from '../i18n';
+import markieLogo from '../assets/markie-logo.png';
 
 interface ToolbarProps {
   theme: Theme;
@@ -58,7 +59,7 @@ export function Toolbar(props: ToolbarProps) {
   return (
     <header className="toolbar" role="toolbar">
       <div className="brand">
-        <Icon name="solar:documents-bold-duotone" size={18} className="brand-mark" aria-label="Markie" />
+        <img src={markieLogo} className="brand-mark" alt="Markie" />
         <span className="brand-name">Markie</span>
       </div>
       <div className="toolbar-group">

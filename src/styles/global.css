@@ -119,14 +119,16 @@ iconify-icon {
 
 .brand {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   margin-right: auto;
 }
 
 .brand-mark {
-  color: var(--accent);
-  font-size: 18px;
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }
 
 .brand-name {
