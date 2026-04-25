@@ -41,7 +41,7 @@
     ],
     "category": "Productivity",
     "shortDescription": "메신저에서 받은 깨진 마크다운을 즉시 예쁘게 렌더링",
-    "longDescription": "Telegram, Slack, Discord에서 받은 AI 답변의 훼손된 마크다운을 전역 단축키 한 번으로 복원해 보여주는 경량 컴패니언."
+    "longDescription": "Discord에서 받은 AI 답변의 훼손된 마크다운을 전역 단축키 한 번으로 복원해 보여주는 경량 컴패니언."
   },
   "plugins": {}
 }

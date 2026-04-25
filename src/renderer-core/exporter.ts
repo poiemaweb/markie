@@ -133,9 +133,9 @@ function resolveColorToHex(color: string): string {
   return color.startsWith('#') ? color : '#ffffff';
 }
 
-export function buildTimestampedFilename(extension: string, platform: string): string {
+export function buildTimestampedFilename(extension: string): string {
   const d = new Date();
   const pad = (n: number) => n.toString().padStart(2, '0');
   const stamp = `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}-${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
-  return `mdpreview-${platform}-${stamp}.${extension}`;
+  return `mdpreview-${stamp}.${extension}`;
 }

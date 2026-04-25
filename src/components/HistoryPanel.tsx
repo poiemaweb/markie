@@ -1,5 +1,4 @@
 import type { HistoryEntry } from '../types';
-import { PLATFORM_LABELS } from '../types';
 import { Icon } from './Icon';
 
 interface HistoryPanelProps {
@@ -42,11 +41,7 @@ export function HistoryPanel({ entries, onClose, onSelect, onDelete, onClear }: 
             <li key={entry.id} className="history-item">
               <button type="button" className="history-main" onClick={() => onSelect(entry)}>
                 <div className="history-meta">
-                  <span className={`platform-chip chip-${entry.platform}`}>
-                    {PLATFORM_LABELS[entry.platform]}
-                  </span>
                   <span className="history-time">{formatTime(entry.createdAt)}</span>
-                  {entry.autoDetected && <span className="auto-badge">자동</span>}
                 </div>
                 <div className="history-preview">{entry.preview || '(빈 내용)'}</div>
               </button>

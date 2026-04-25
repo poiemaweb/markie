@@ -538,47 +538,6 @@ iconify-icon {
   color: var(--fg-subtle);
 }
 
-.platform-chip {
-  display: inline-block;
-  padding: 1px 8px;
-  border-radius: 999px;
-  font-size: 10.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-.chip-slack {
-  background: rgba(54, 197, 240, 0.18);
-  color: #1a84a6;
-}
-.chip-telegram {
-  background: rgba(0, 136, 204, 0.18);
-  color: #0b6fa5;
-}
-.chip-discord {
-  background: rgba(88, 101, 242, 0.18);
-  color: #3b49d3;
-}
-.chip-raw {
-  background: rgba(80, 90, 100, 0.14);
-  color: #5c6573;
-}
-
-:root[data-theme='dark'] .chip-slack { color: #73d7f5; }
-:root[data-theme='dark'] .chip-telegram { color: #6ac0f2; }
-:root[data-theme='dark'] .chip-discord { color: #a4acff; }
-:root[data-theme='dark'] .chip-raw { color: #adb5bd; }
-
-.auto-badge {
-  font-size: 10.5px;
-  color: var(--fg-subtle);
-  padding: 1px 6px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-}
 
 .history-preview {
   font-size: 12.5px;

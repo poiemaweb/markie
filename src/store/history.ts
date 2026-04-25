@@ -1,4 +1,4 @@
-import type { HistoryEntry, Platform } from '../types';
+import type { HistoryEntry } from '../types';
 
 const HISTORY_KEY = 'mdpreview.history.v1';
 const MAX_ENTRIES = 50;
@@ -21,14 +21,12 @@ export function saveHistory(entries: HistoryEntry[]): void {
   localStorage.setItem(HISTORY_KEY, JSON.stringify(capped));
 }
 
-export function appendHistory(rawText: string, platform: Platform, autoDetected: boolean): HistoryEntry[] {
+export function appendHistory(rawText: string): HistoryEntry[] {
   if (!rawText.trim()) return loadHistory();
   const current = loadHistory();
   const entry: HistoryEntry = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     createdAt: Date.now(),
-    platform,
-    autoDetected,
     rawText,
     preview: rawText.slice(0, 160).replace(/\s+/g, ' '),
   };

@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ClipboardEvent as ReactClipboardEvent } from 'react';
-import type { HistoryEntry, Platform, Settings } from './types';
-import { PLATFORMS, PLATFORM_LABELS } from './types';
-import { detectPlatform, preprocessAuto, preprocessFor } from './preprocessors';
+import type { HistoryEntry, Settings } from './types';
 import { renderMarkdown } from './renderer-core/markdown';
 import { buildTimestampedFilename, exportMarkdown, exportPdf, exportPng } from './renderer-core/exporter';
 import { importFromClipboard, normalizeImportedText, subscribeGlobalPaste } from './renderer-core/importer';
@@ -52,7 +50,6 @@ type PanelMode = 'preview' | 'history' | 'settings';
 export function App() {
   const [rawText, setRawText] = useState<string>('');
   const [settings, setSettings] = useState<Settings>(() => loadSettings());
-  const [manualPlatform, setManualPlatform] = useState<Platform | 'auto'>('raw');
   const [history, setHistory] = useState<HistoryEntry[]>(() => loadHistory());
   const [panel, setPanel] = useState<PanelMode>('preview');
   const [showSource, setShowSource] = useState(false);
@@ -103,33 +100,16 @@ export function App() {
     document.documentElement.style.setProperty('--font-scale', String(settings.fontScale));
   }, [settings.theme, settings.fontScale]);
 
-  const preprocessed = useMemo(() => {
-    if (!rawText) {
-      return { text: '', platform: 'raw' as Platform, autoDetected: true, notes: [] };
-    }
-    const override = manualPlatform === 'auto' ? undefined : manualPlatform;
-    if (settings.autoDetect || override) {
-      return preprocessAuto(rawText, override);
-    }
-    return {
-      text: preprocessFor(settings.preferredPlatform, rawText),
-      platform: settings.preferredPlatform,
-      autoDetected: false,
-      notes: [`기본값: ${settings.preferredPlatform}`],
-    };
-  }, [rawText, manualPlatform, settings.autoDetect, settings.preferredPlatform]);
-
-  const detection = useMemo(() => (rawText ? detectPlatform(rawText) : null), [rawText]);
-
   const html = useMemo(() => {
-    if (!preprocessed.text) return '';
+    if (!rawText) return '';
     try {
-      return renderMarkdown(preprocessed.text);
+      return renderMarkdown(rawText);
     } catch (err) {
       const message = err instanceof Error ? err.message : '알 수 없는 오류';
       return `<div class="error-banner">렌더링 실패: ${message}</div>`;
     }
-  }, [preprocessed.text]);
+  }, [rawText]);
+
 
   // Mermaid: render .mermaid-pending placeholders to SVG after html updates
   useEffect(() => {
@@ -203,9 +183,7 @@ export function App() {
       setRawText(text);
       setPanel('preview');
       if (settings.historyEnabled) {
-        const detected = detectPlatform(text);
-        const platform: Platform = detected.score >= 4 ? detected.platform : 'raw';
-        setHistory(appendHistory(text, platform, true));
+        setHistory(appendHistory(text));
       }
       notify('클립보드 내용을 렌더링했습니다');
     },
@@ -266,32 +244,31 @@ export function App() {
   const handleExportPdf = useCallback(async () => {
     if (!previewRef.current) return;
     try {
-      await exportPdf(previewRef.current, buildTimestampedFilename('pdf', preprocessed.platform));
+      await exportPdf(previewRef.current, buildTimestampedFilename('pdf'));
       triggerDownloadAnim('pdf');
     } catch (err) {
       notify(err instanceof Error ? err.message : 'PDF 저장 실패');
     }
-  }, [notify, triggerDownloadAnim, preprocessed.platform]);
+  }, [notify, triggerDownloadAnim]);
 
   const handleExportPng = useCallback(async () => {
     if (!previewRef.current) return;
     try {
-      await exportPng(previewRef.current, buildTimestampedFilename('png', preprocessed.platform));
+      await exportPng(previewRef.current, buildTimestampedFilename('png'));
       triggerDownloadAnim('png');
     } catch (err) {
       notify(err instanceof Error ? err.message : 'PNG 저장 실패');
     }
-  }, [notify, triggerDownloadAnim, preprocessed.platform]);
+  }, [notify, triggerDownloadAnim]);
 
   const handleExportMd = useCallback(() => {
-    if (!preprocessed.text) return;
-    exportMarkdown(preprocessed.text, buildTimestampedFilename('md', preprocessed.platform));
+    if (!rawText) return;
+    exportMarkdown(rawText, buildTimestampedFilename('md'));
     triggerDownloadAnim('md');
-  }, [preprocessed.text, preprocessed.platform, triggerDownloadAnim]);
+  }, [rawText, triggerDownloadAnim]);
 
   const handleSelectHistory = useCallback((entry: HistoryEntry) => {
     setRawText(entry.rawText);
-    setManualPlatform(entry.autoDetected ? 'auto' : entry.platform);
     setPanel('preview');
   }, []);
 
@@ -335,12 +312,6 @@ export function App() {
       if (isMod && e.key === ',') {
         e.preventDefault();
         setPanel((p) => (p === 'settings' ? 'preview' : 'settings'));
-        return;
-      }
-      if (isMod && /^[1-4]$/.test(e.key)) {
-        e.preventDefault();
-        const idx = Number(e.key) - 1;
-        setManualPlatform(PLATFORMS[idx] ?? 'auto');
         return;
       }
       if (e.key === 'Escape' && panel !== 'preview') {
@@ -393,7 +364,7 @@ export function App() {
         <section className="input-pane" aria-label="입력">
           <label className="pane-heading">
             <span>원본 텍스트</span>
-            <span className="hint">여기에 붙여넣기 · {PLATFORM_LABELS[preprocessed.platform]}</span>
+            <span className="hint">여기에 붙여넣기</span>
           </label>
           <textarea
             ref={rawInputRef}
@@ -417,8 +388,8 @@ export function App() {
                 dangerouslySetInnerHTML={{ __html: html }}
               />
               {showSource && (
-                <pre className="source-dump" aria-label="전처리된 소스">
-                  {preprocessed.text}
+                <pre className="source-dump" aria-label="원본 소스">
+                  {rawText}
                 </pre>
               )}
             </div>
@@ -429,7 +400,6 @@ export function App() {
       </main>
       <footer className="statusbar">
         <span>{rawText.length.toLocaleString()} 문자</span>
-        <span>감지 후보: {detection ? `${detection.platform} (${detection.score})` : '—'}</span>
         <span className={status ? 'status live' : 'status'}>{status || `${MOD_KEY}+Enter 로 클립보드 붙여넣기`}</span>
       </footer>
       {panel === 'history' && (
