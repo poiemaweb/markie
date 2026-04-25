@@ -11,7 +11,11 @@ The contract becomes stable at `1.0.0`.
 ## [Unreleased]
 
 ### Added
-- _your next change here_
+- CI workflow (`.github/workflows/ci.yml`) — typecheck + build on push and PR.
+- Demo GIF recording guide (`docs/DEMO_GUIDE.md`).
+
+### Changed
+- **PDF export** now splits tall content across standard A4 pages (`595×842pt`) instead of producing a single oversized custom-format page. Page boundaries fall at fixed A4 heights, so very long lines or code blocks may split mid-content; revisit with print-CSS pagination later if needed.
 
 ## [0.1.0] - 2026-04-25
 
