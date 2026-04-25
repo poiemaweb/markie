@@ -1,7 +1,35 @@
 # Markie
 
-An ultra-lightweight companion that renders markdown text beautifully in real-time.
-This repository is currently in the **Web MVP (v0.1)** phase, with plans to wrap it in Tauri or Electron in future stages to extend it into a tray-resident app with global shortcuts.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Release](https://img.shields.io/github/v/release/poiemaweb/markdown-viewer?include_prereleases&sort=semver)](https://github.com/poiemaweb/markdown-viewer/releases)
+
+An ultra-lightweight companion that renders markdown text beautifully — paste, drag, or import, and see the result instantly. Ships as a web app and a tray-resident desktop app (macOS / Windows / Linux) via Tauri 2.
+
+> **Status:** `0.1.x` — early preview. APIs, shortcuts, and storage formats may change before `1.0`. See [CHANGELOG.md](./CHANGELOG.md).
+
+---
+
+## Demo
+
+<!-- TODO: replace with a real GIF before v0.2.0 release -->
+<!-- ![Markie demo](docs/demo.gif) -->
+_A short demo GIF will appear here in `v0.2.0`._
+
+---
+
+## Install
+
+Pre-built desktop bundles are attached to each [GitHub Release](https://github.com/poiemaweb/markdown-viewer/releases):
+
+| Platform | Asset |
+| --- | --- |
+| macOS  | `Markie_x.y.z_universal.dmg` |
+| Windows | `Markie_x.y.z_x64-setup.msi` |
+| Linux  | `markie_x.y.z_amd64.AppImage` / `.deb` |
+
+For the web build, open the latest [`gh-pages`](https://poiemaweb.github.io/markdown-viewer/) deployment (planned for `v0.2.0`).
+
+> First public release (`v0.2.0`) is not yet tagged — until then, build from source as shown in **Quick Start**.
 
 ---
 
@@ -85,15 +113,40 @@ markie/
 
 ---
 
-## Next Milestones
+## Roadmap
 
-- **M3 (Scaffold Complete)**: `src-tauri/` Rust backend — tray, global shortcuts, clipboard IPC
-  - `tauri-bridge.ts` auto-branches between web/desktop based on `window.__TAURI__` presence
-  - Actual execution requires Node 18+ · Rust 1.77+ environment via `npm run tauri:dev`
-- **M5**: KaTeX · Mermaid · SQLite history migration
+- **0.2.0** — First public release. Demo GIF, GitHub Pages web build, signed desktop bundles via Tauri Action.
+- **0.3.0** — KaTeX math rendering, larger sample corpus.
+- **0.4.0** — SQLite-backed history (replacing localStorage), Tauri auto-updater.
+- **1.0.0** — Stable contract (storage, shortcuts, public API). See `RELEASE_CHECKLIST.md` for the promotion criteria.
+
+For per-release detail, see [CHANGELOG.md](./CHANGELOG.md).
+
+---
+
+## Releasing
+
+Maintainers: see [`RELEASE_CHECKLIST.md`](./RELEASE_CHECKLIST.md). Short version:
+
+```bash
+node scripts/bump-version.mjs 0.2.0     # syncs package.json + tauri.conf.json + Cargo.toml
+git commit -am "chore: release v0.2.0"
+git tag -a v0.2.0 -m "v0.2.0"
+git push && git push --tags             # GitHub Actions builds + drafts the release
+```
+
+---
+
+## Contributing
+
+Issues and pull requests are welcome. Before submitting:
+
+- Run `npm run typecheck` and `npm run build` locally.
+- Reference the section of `CHANGELOG.md` your change belongs in (`Added` / `Changed` / `Fixed` / `Removed`).
+- For breaking changes during `0.x`, call it out explicitly in the PR description.
 
 ---
 
 ## License
 
-Internal project. License to be determined upon public release.
+[MIT](./LICENSE) © 2026 elounge
