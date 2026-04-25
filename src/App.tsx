@@ -268,7 +268,8 @@ export function App() {
     if (!rawText) return;
     exportMarkdown(rawText, buildTimestampedFilename('md'));
     triggerDownloadAnim('md');
-  }, [rawText, triggerDownloadAnim]);
+    notify(t('notifications.mdSaved'));
+  }, [rawText, triggerDownloadAnim, notify]);
 
   const handleSelectHistory = useCallback((entry: HistoryEntry) => {
     setRawText(entry.rawText);

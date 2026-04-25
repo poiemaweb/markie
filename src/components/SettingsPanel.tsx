@@ -23,6 +23,7 @@ const SHORTCUTS: ShortcutItem[] = [
   { keys: ['Mod', 'Enter'], label: 'shortcutClipboard' },
   { keys: ['Mod', 'P'], label: 'shortcutPdf' },
   { keys: ['Mod', 'Shift', 'P'], label: 'shortcutPng' },
+  { keys: ['Mod', 'S'], label: 'shortcutMd' },
   { keys: ['Mod', 'H'], label: 'shortcutHistory' },
   { keys: ['Mod', ','], label: 'shortcutSettings' },
   { keys: ['Esc'], label: 'shortcutClose' },

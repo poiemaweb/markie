@@ -57,6 +57,7 @@ export interface Translations {
     shortcutClipboard: string;
     shortcutPdf: string;
     shortcutPng: string;
+    shortcutMd: string;
     shortcutHistory: string;
     shortcutSettings: string;
     shortcutClose: string;
@@ -137,6 +138,7 @@ export const translations: Record<Language, Translations> = {
       shortcutClipboard: '클립보드에서 렌더',
       shortcutPdf: 'PDF 내보내기',
       shortcutPng: 'PNG 내보내기',
+      shortcutMd: 'Markdown 저장',
       shortcutHistory: '히스토리 패널',
       shortcutSettings: '설정 패널',
       shortcutClose: '패널 닫기',
@@ -215,6 +217,7 @@ export const translations: Record<Language, Translations> = {
       shortcutClipboard: 'Render from clipboard',
       shortcutPdf: 'Export PDF',
       shortcutPng: 'Export PNG',
+      shortcutMd: 'Save Markdown',
       shortcutHistory: 'History panel',
       shortcutSettings: 'Settings panel',
       shortcutClose: 'Close panel',
