@@ -10,13 +10,26 @@ The contract becomes stable at `1.0.0`.
 
 ## [Unreleased]
 
+_No changes yet._
+
+## [0.2.0] - 2026-04-25
+
+First public alpha. Project renamed from "Markdown Preview Companion" to **Markie**, with full release tooling (signed bundles via GitHub Actions, MIT license, CI, changelog, recording guide).
+
 ### Added
+- LICENSE — MIT.
+- CHANGELOG (Keep a Changelog 1.1.0).
+- RELEASE_CHECKLIST.md — release procedure and `1.0.0` promotion criteria.
+- `scripts/bump-version.mjs` — keeps `package.json`, `src-tauri/tauri.conf.json`, and `src-tauri/Cargo.toml` in sync.
 - CI workflow (`.github/workflows/ci.yml`) — typecheck + build on push and PR.
-- Demo GIF recording guide (`docs/DEMO_GUIDE.md`).
+- Release workflow (`.github/workflows/release.yml`) — Tauri bundles for macOS, Linux, Windows on `v*` tag push, drafted on GitHub Releases.
 - Demo GIF (`docs/markie-demo.gif`) — paste → render → export, embedded in README.
+- Demo GIF recording guide (`docs/DEMO_GUIDE.md`).
+- README badges, install section, roadmap, contributing section.
 
 ### Changed
 - **PDF export** now splits tall content across standard A4 pages (`595×842pt`) instead of producing a single oversized custom-format page. Page boundaries fall at fixed A4 heights, so very long lines or code blocks may split mid-content; revisit with print-CSS pagination later if needed.
+- All repository URLs updated from `poiemaweb/markdown-viewer` to `poiemaweb/markie` after the rename.
 
 ## [0.1.0] - 2026-04-25
 
@@ -57,5 +70,6 @@ Initial release of **Markie** — a lightweight desktop/web companion for instan
 - Removed platform-detection auto-hint from preview pane.
 - Default platform set to Raw Markdown; platform selector UI removed.
 
-[Unreleased]: https://github.com/poiemaweb/markie/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/poiemaweb/markie/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/poiemaweb/markie/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/poiemaweb/markie/releases/tag/v0.1.0

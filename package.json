@@ -1,6 +1,6 @@
 {
   "name": "markie",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "마크다운 텍스트를 즉시 예쁘게 렌더링하는 초경량 컴패니언",
   "type": "module",
