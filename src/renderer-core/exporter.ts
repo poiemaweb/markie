@@ -85,22 +85,61 @@ export async function exportPdf(previewHost: HTMLElement, filename = 'markdown.p
   // PNG과 동일하게 natural width로 캡처 — forceWidth는 html-to-image가 출력 크기로 오해해 clipping 발생
   const { canvas, bgElevated } = await captureArticle(previewHost, 2);
 
-  // canvas 크기(px) → PDF pt 단위 (A4 폭 595pt 기준)
+  // A4 크기 (pt)
   const a4W = 595;
+  const a4H = 842;
   const scale = a4W / canvas.width;
-  const pdfH = canvas.height * scale; // 비율 그대로 유지 — 반올림하면 세로 미세 왜곡 발생
   const bgHex = resolveColorToHex(bgElevated);
 
   const pdf = new jsPDF({
     unit: 'pt',
-    format: [a4W, pdfH],
+    format: 'a4',
     orientation: 'portrait',
     compress: true,
   });
-  // 페이지 전체 배경 fill (하단 여백 보장)
-  pdf.setFillColor(bgHex);
-  pdf.rect(0, 0, a4W, pdfH, 'F');
-  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, a4W, pdfH, undefined, 'FAST');
+
+  // 전체 높이를 A4 페이지 단위로 나눔
+  const totalHeight = canvas.height * scale;
+  const pageCount = Math.ceil(totalHeight / a4H);
+
+  for (let i = 0; i < pageCount; i++) {
+    if (i > 0) {
+      pdf.addPage();
+    }
+
+    // 현재 페이지의 y 위치
+    const yPos = i * a4H;
+    // 현재 페이지의 높이 (마지막 페이지는 남은 높이)
+    const pageHeight = Math.min(a4H, totalHeight - yPos);
+
+    // 페이지 배경
+    pdf.setFillColor(bgHex);
+    pdf.rect(0, 0, a4W, pageHeight, 'F');
+
+    // canvas에서 해당 영역 잘라내기
+    const canvasY = (yPos / scale);
+    const canvasHeight = (pageHeight / scale);
+
+    // 새 canvas 생성하여 해당 영역 복사
+    const pageCanvas = document.createElement('canvas');
+    pageCanvas.width = canvas.width;
+    pageCanvas.height = canvasHeight;
+    const pageCtx = pageCanvas.getContext('2d')!;
+    pageCtx.drawImage(canvas, 0, -canvasY);
+
+    // PDF에 추가
+    pdf.addImage(
+      pageCanvas.toDataURL('image/png'),
+      'PNG',
+      0,
+      0,
+      a4W,
+      pageHeight,
+      undefined,
+      'FAST'
+    );
+  }
+
   pdf.save(filename);
 }
 
