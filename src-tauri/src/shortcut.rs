@@ -11,7 +11,7 @@ pub fn register_default_shortcut(app: &AppHandle) -> Result<(), Box<dyn std::err
                 if let Some(window) = app_handle.get_webview_window("main") {
                     let _ = window.show();
                     let _ = window.set_focus();
-                    let _ = window.emit("mdpreview://paste", ());
+                    let _ = window.emit("markie://paste", ());
                 }
             }
         })

@@ -27,7 +27,7 @@ export async function onPasteShortcut(handler: () => void): Promise<() => void> 
   if (!isTauri()) return () => {};
   try {
     const { listen } = await import('@tauri-apps/api/event');
-    return await listen('mdpreview://paste', () => handler());
+    return await listen('markie://paste', () => handler());
   } catch (err) {
     console.warn('Tauri event listener registration failed', err);
     return () => {};

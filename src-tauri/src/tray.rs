@@ -10,8 +10,8 @@ pub fn create_tray(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let quit_item = MenuItem::with_id(app, "quit", "종료", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&show_item, &hide_item, &quit_item])?;
 
-    let mut builder = TrayIconBuilder::with_id("mdpreview-tray")
-        .tooltip("Markdown Preview Companion")
+    let mut builder = TrayIconBuilder::with_id("markie-tray")
+        .tooltip("Markie")
         .menu(&menu)
         .show_menu_on_left_click(false);
 

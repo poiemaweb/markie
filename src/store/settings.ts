@@ -1,6 +1,6 @@
 import { DEFAULT_SETTINGS, type Settings } from '../types';
 
-const SETTINGS_KEY = 'mdpreview.settings.v1';
+const SETTINGS_KEY = 'markie.settings.v1';
 
 export function loadSettings(): Settings {
   try {

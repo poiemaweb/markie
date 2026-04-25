@@ -22,7 +22,7 @@ let mermaidIdCounter = 0;
 let mermaidInitialized = false;
 
 const SAMPLE_TEXT = [
-  '# Markdown Preview',
+  '# Markie',
   '',
   '마크다운 텍스트를 붙여넣거나 `.md` 파일을 드래그하면 즉시 렌더링됩니다.',
   '',

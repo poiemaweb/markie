@@ -57,8 +57,8 @@ export function Toolbar(props: ToolbarProps) {
   return (
     <header className="toolbar" role="toolbar">
       <div className="brand">
-        <Icon name="solar:documents-bold-duotone" size={18} className="brand-mark" aria-label="Markdown Preview" />
-        <span className="brand-name">Markdown Preview</span>
+        <Icon name="solar:documents-bold-duotone" size={18} className="brand-mark" aria-label="Markie" />
+        <span className="brand-name">Markie</span>
       </div>
       <div className="toolbar-group">
         <div className="segmented" role="radiogroup" aria-label="테마">

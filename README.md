@@ -1,4 +1,4 @@
-# Markdown Preview Companion
+# Markie
 
 마크다운 텍스트를 즉시 예쁘게 렌더링해주는 초경량 컴패니언.
 현재 저장소는 **웹 MVP(v0.1)** 단계이며, 이후 단계에서 Tauri 또는 Electron 래퍼를 씌워 트레이 상주 + 전역 단축키 앱으로 확장됩니다.

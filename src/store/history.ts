@@ -1,6 +1,6 @@
 import type { HistoryEntry } from '../types';
 
-const HISTORY_KEY = 'mdpreview.history.v1';
+const HISTORY_KEY = 'markie.history.v1';
 const MAX_ENTRIES = 50;
 
 function safeParse<T>(raw: string | null, fallback: T): T {
