@@ -19,16 +19,31 @@ export function loadHistory(): HistoryEntry[] {
   
   const oldData = localStorage.getItem(OLD_HISTORY_KEY);
   if (oldData) {
-    const oldEntries = safeParse<any[]>(oldData, []);
-    const migrated: HistoryEntry[] = oldEntries.map(entry => ({
-      id: entry.id,
-      createdAt: entry.createdAt,
-      rawText: entry.rawText,
-      preview: entry.preview,
-    }));
-    saveHistory(migrated);
-    localStorage.removeItem(OLD_HISTORY_KEY);
-    return migrated;
+    try {
+      const oldEntries = safeParse<any[]>(oldData, []);
+      const migrated: HistoryEntry[] = oldEntries
+        .filter(entry => 
+          entry &&
+          typeof entry.id === 'string' &&
+          typeof entry.createdAt === 'number' &&
+          typeof entry.rawText === 'string' &&
+          typeof entry.preview === 'string'
+        )
+        .map(entry => ({
+          id: entry.id,
+          createdAt: entry.createdAt,
+          rawText: entry.rawText,
+          preview: entry.preview,
+        }));
+      if (migrated.length > 0) {
+        saveHistory(migrated);
+      }
+    } catch {
+      // 파싱 실패 시 기본값 사용
+    } finally {
+      localStorage.removeItem(OLD_HISTORY_KEY);
+    }
+    return loadHistory(); // 재귀 호출로 마이그레이션된 값 로드
   }
   return [];
 }
