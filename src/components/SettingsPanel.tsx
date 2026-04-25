@@ -1,4 +1,5 @@
 import type { Settings, Theme } from '../types';
+import { t } from '../i18n';
 
 interface SettingsPanelProps {
   settings: Settings;
@@ -19,12 +20,12 @@ interface ShortcutItem {
 }
 
 const SHORTCUTS: ShortcutItem[] = [
-  { keys: ['Mod', 'Enter'], label: '클립보드에서 렌더' },
-  { keys: ['Mod', 'P'], label: 'PDF 내보내기' },
-  { keys: ['Mod', 'Shift', 'P'], label: 'PNG 내보내기' },
-  { keys: ['Mod', 'H'], label: '히스토리 패널' },
-  { keys: ['Mod', ','], label: '설정 패널' },
-  { keys: ['Esc'], label: '패널 닫기' },
+  { keys: ['Mod', 'Enter'], label: 'shortcutClipboard' },
+  { keys: ['Mod', 'P'], label: 'shortcutPdf' },
+  { keys: ['Mod', 'Shift', 'P'], label: 'shortcutPng' },
+  { keys: ['Mod', 'H'], label: 'shortcutHistory' },
+  { keys: ['Mod', ','], label: 'shortcutSettings' },
+  { keys: ['Esc'], label: 'shortcutClose' },
 ];
 
 export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProps) {
@@ -33,16 +34,16 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
   };
 
   return (
-    <aside className="slide-panel" role="dialog" aria-label="설정">
+    <aside className="slide-panel" role="dialog" aria-label={t('settings.title')}>
       <div className="slide-panel-header">
-        <h2>설정</h2>
+        <h2>{t('settings.title')}</h2>
         <button type="button" className="btn" onClick={onClose}>
-          닫기
+          {t('settings.close')}
         </button>
       </div>
       <div className="settings-body">
         <section className="settings-section">
-          <h3>테마</h3>
+          <h3>{t('settings.theme')}</h3>
           <div className="row-gap">
             {THEMES.map((theme) => (
               <label key={theme} className="radio-pill">
@@ -59,7 +60,7 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
           </div>
         </section>
         <section className="settings-section">
-          <h3>폰트 크기</h3>
+          <h3>{t('settings.fontSize')}</h3>
           <div className="slider-row">
             <input
               type="range"
@@ -73,18 +74,18 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
           </div>
         </section>
         <section className="settings-section">
-          <h3>히스토리</h3>
+          <h3>{t('settings.history')}</h3>
           <label className="switch-row">
             <input
               type="checkbox"
               checked={settings.historyEnabled}
               onChange={(e) => update('historyEnabled', e.target.checked)}
             />
-            <span>클립보드에서 불러온 내용을 최근 50개까지 저장합니다 (로컬 전용).</span>
+            <span>{t('settings.historyDescription')}</span>
           </label>
         </section>
         <section className="settings-section">
-          <h3>단축키</h3>
+          <h3>{t('settings.shortcuts')}</h3>
           <ul className="shortcut-list">
             {SHORTCUTS.map(({ keys, label }) => (
               <li key={label}>
@@ -95,13 +96,12 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
                   </span>
                 ))}
                 {' — '}
-                {label}
+                {t(`settings.${label}`)}
               </li>
             ))}
           </ul>
           <p className="subtle-note">
-            데스크탑 앱에서는 전역 단축키 <kbd>{MOD_KEY}</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> 로
-            어느 창에서나 클립보드를 바로 불러올 수 있습니다. 웹에서는 창에 포커스가 있어야 동작합니다.
+            {t('settings.shortcutsNote')}
           </p>
         </section>
       </div>

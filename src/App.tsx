@@ -12,6 +12,7 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { EmptyState } from './components/EmptyState';
 import { DownloadFlyout } from './components/DownloadFlyout';
 import { onPasteShortcut, onFileDragEnter, onFileDragLeave, onFileDrop, readTextFile, isTauri } from './tauri-bridge';
+import { t } from './i18n';
 
 const IS_MAC =
   typeof navigator !== 'undefined' &&
@@ -21,29 +22,31 @@ const MOD_KEY = IS_MAC ? '⌘' : 'Ctrl';
 let mermaidIdCounter = 0;
 let mermaidInitialized = false;
 
-const SAMPLE_TEXT = [
-  '# Markie',
-  '',
-  '마크다운 텍스트를 붙여넣거나 `.md` 파일을 드래그하면 즉시 렌더링됩니다.',
-  '',
-  '## 원본 텍스트 가져오기',
-  '',
-  '| 방법 | 설명 |',
-  '| --- | --- |',
-  '| 클립보드 붙여넣기 | 툴바의 **클립보드에서 불러오기** 버튼 또는 `Cmd+Enter` |',
-  '| 직접 입력 | 왼쪽 원본 텍스트 창에 바로 붙여넣기 |',
-  '| 드래그 & 드롭 | `.md` 파일을 창 위로 드래그해서 놓기 |',
-  '',
-  '## 지원 형식',
-  '',
-  '제목, **굵게**, *기울임*, `인라인 코드`, 링크, 표, 인용문, 코드 블록을 렌더링합니다.',
-  '',
-  '```ts',
-  'export const greet = (name: string) => `안녕 ${name}`;',
-  '```',
-  '',
-  '> 렌더링 결과는 **PNG** 또는 **PDF**로 저장할 수 있습니다.',
-].join('\n');
+function getSampleText(): string {
+  return [
+    t('app.sampleTitle'),
+    '',
+    t('app.sampleDescription'),
+    '',
+    t('app.sampleImportTitle'),
+    '',
+    '| 방법 | 설명 |',
+    '| --- | --- |',
+    t('app.sampleImportMethod1'),
+    t('app.sampleImportMethod2'),
+    t('app.sampleImportMethod3'),
+    '',
+    t('app.sampleFormatsTitle'),
+    '',
+    t('app.sampleFormatsDescription'),
+    '',
+    '```ts',
+    'export const greet = (name: string) => `안녕 ${name}`;',
+    '```',
+    '',
+    t('app.sampleQuote'),
+  ].join('\n');
+}
 
 type PanelMode = 'preview' | 'history' | 'settings';
 
@@ -88,7 +91,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    setRawText(SAMPLE_TEXT);
+    setRawText(getSampleText());
   }, []);
 
   useEffect(() => {
@@ -106,7 +109,7 @@ export function App() {
       return renderMarkdown(rawText);
     } catch (err) {
       const message = err instanceof Error ? err.message : '알 수 없는 오류';
-      return `<div class="error-banner">렌더링 실패: ${message}</div>`;
+      return `<div class="error-banner">${t('notifications.renderError')}: ${message}</div>`;
     }
   }, [rawText]);
 
@@ -185,7 +188,7 @@ export function App() {
       if (settings.historyEnabled) {
         setHistory(appendHistory(text));
       }
-      notify('클립보드 내용을 렌더링했습니다');
+      notify(t('notifications.clipboardRendered'));
     },
     [settings.historyEnabled, notify],
   );
@@ -197,10 +200,10 @@ export function App() {
         applyPastedText(result.text);
         return;
       case 'empty':
-        notify('클립보드가 비어 있습니다');
+        notify(t('notifications.clipboardEmpty'));
         return;
       case 'denied':
-        notify(`${MOD_KEY}+V 로 직접 붙여넣어 주세요`);
+        notify(`${MOD_KEY}+V ${t('notifications.clipboardDenied')}`);
     }
   }, [applyPastedText, notify]);
 
@@ -247,7 +250,7 @@ export function App() {
       await exportPdf(previewRef.current, buildTimestampedFilename('pdf'));
       triggerDownloadAnim('pdf');
     } catch (err) {
-      notify(err instanceof Error ? err.message : 'PDF 저장 실패');
+      notify(err instanceof Error ? err.message : t('notifications.pdfSaveFailed'));
     }
   }, [notify, triggerDownloadAnim]);
 
@@ -257,7 +260,7 @@ export function App() {
       await exportPng(previewRef.current, buildTimestampedFilename('png'));
       triggerDownloadAnim('png');
     } catch (err) {
-      notify(err instanceof Error ? err.message : 'PNG 저장 실패');
+      notify(err instanceof Error ? err.message : t('notifications.pngSaveFailed'));
     }
   }, [notify, triggerDownloadAnim]);
 
@@ -344,7 +347,7 @@ export function App() {
         <div className="drag-overlay" aria-hidden="true">
           <div className="drag-overlay__card">
             <span className="drag-overlay__icon">↓</span>
-            <span className="drag-overlay__label">.md 파일을 놓으세요</span>
+            <span className="drag-overlay__label">{t('emptyState.description')}</span>
           </div>
         </div>
       )}
@@ -363,8 +366,8 @@ export function App() {
       <main className="workspace">
         <section className="input-pane" aria-label="입력">
           <label className="pane-heading">
-            <span>원본 텍스트</span>
-            <span className="hint">여기에 붙여넣기</span>
+            <span>{t('input.originalText')}</span>
+            <span className="hint">{t('input.pasteHere')}</span>
           </label>
           <textarea
             ref={rawInputRef}
@@ -373,13 +376,13 @@ export function App() {
             onChange={(e) => setRawText(e.target.value)}
             onPaste={handleRawPaste}
             onScroll={handleRawScroll}
-            placeholder="마크다운 텍스트를 붙여넣거나 .md 파일을 드래그하세요..."
+            placeholder={t('emptyState.description')}
             spellCheck={false}
           />
         </section>
         <section className="preview-pane" aria-label="미리보기">
           <div className="pane-heading">
-            <span>렌더링 결과</span>
+            <span>{t('preview.renderedResult')}</span>
           </div>
           {html ? (
             <div ref={previewRef} className="preview-host">
@@ -399,8 +402,8 @@ export function App() {
         </section>
       </main>
       <footer className="statusbar">
-        <span>{rawText.length.toLocaleString()} 문자</span>
-        <span className={status ? 'status live' : 'status'}>{status || `${MOD_KEY}+Enter 로 클립보드 붙여넣기`}</span>
+        <span>{rawText.length.toLocaleString()} {t('statusbar.characters')}</span>
+        <span className={status ? 'status live' : 'status'}>{status || `${MOD_KEY}+Enter ${t('statusbar.clipboardHint')}`}</span>
       </footer>
       {panel === 'history' && (
         <HistoryPanel

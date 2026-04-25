@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Theme } from '../types';
 import { Icon } from './Icon';
+import { t } from '../i18n';
 
 interface ToolbarProps {
   theme: Theme;
@@ -61,18 +62,18 @@ export function Toolbar(props: ToolbarProps) {
         <span className="brand-name">Markie</span>
       </div>
       <div className="toolbar-group">
-        <div className="segmented" role="radiogroup" aria-label="테마">
-          {THEMES.map((t) => (
+        <div className="segmented" role="radiogroup" aria-label={t('settings.theme')}>
+          {THEMES.map((themeOpt) => (
             <button
-              key={t.value}
+              key={themeOpt.value}
               type="button"
               role="radio"
-              aria-checked={theme === t.value}
-              className={theme === t.value ? 'segment active' : 'segment'}
-              onClick={() => onThemeChange(t.value)}
-              title={t.label}
+              aria-checked={theme === themeOpt.value}
+              className={theme === themeOpt.value ? 'segment active' : 'segment'}
+              onClick={() => onThemeChange(themeOpt.value)}
+              title={themeOpt.label}
             >
-              <Icon name={t.icon} size={14} aria-label={t.label} />
+              <Icon name={themeOpt.icon} size={14} aria-label={themeOpt.label} />
             </button>
           ))}
         </div>
@@ -80,11 +81,11 @@ export function Toolbar(props: ToolbarProps) {
       <div className="toolbar-group">
         <button type="button" className="btn primary" onClick={onPaste} title={`${MOD}+Enter`}>
           <Icon name="solar:clipboard-text-bold" size={14} />
-          <span>클립보드에서 불러오기</span>
+          <span>{t('toolbar.importClipboard')}</span>
         </button>
         <button type="button" className="btn" onClick={onToggleSource} style={{ display: 'none' }}>
           <Icon name={showSource ? 'solar:eye-closed-bold' : 'solar:code-bold'} size={14} />
-          <span>{showSource ? '소스 숨기기' : '원본 보기'}</span>
+          <span>{showSource ? t('toolbar.hideSource') : t('toolbar.showSource')}</span>
         </button>
       </div>
       <div className="toolbar-group" ref={exportRef} style={{ position: 'relative' }}>
@@ -96,7 +97,7 @@ export function Toolbar(props: ToolbarProps) {
           aria-expanded={exportOpen}
         >
           <Icon name="solar:download-minimalistic-bold" size={14} />
-          <span>내보내기</span>
+          <span>{t('toolbar.export')}</span>
           <Icon name={exportOpen ? 'solar:alt-arrow-up-bold' : 'solar:alt-arrow-down-bold'} size={12} />
         </button>
         <div className={`export-menu${exportOpen ? ' export-menu--open' : ''}`} role="menu" aria-hidden={!exportOpen}>
@@ -109,7 +110,7 @@ export function Toolbar(props: ToolbarProps) {
             title={`${MOD}+P`}
           >
             <Icon name="solar:file-text-bold" size={14} />
-            <span>PDF 내보내기</span>
+            <span>{t('toolbar.exportPdf')}</span>
           </button>
           <button
             type="button"
@@ -120,7 +121,7 @@ export function Toolbar(props: ToolbarProps) {
             title={`${MOD}+Shift+P`}
           >
             <Icon name="solar:gallery-bold" size={14} />
-            <span>PNG 내보내기</span>
+            <span>{t('toolbar.exportPng')}</span>
           </button>
           <button
             type="button"
@@ -131,18 +132,18 @@ export function Toolbar(props: ToolbarProps) {
             title={`${MOD}+S`}
           >
             <Icon name="solar:document-text-bold" size={14} />
-            <span>MD 내보내기</span>
+            <span>{t('toolbar.exportMd')}</span>
           </button>
         </div>
       </div>
       <div className="toolbar-group">
         <button type="button" className="btn ghost" onClick={onOpenHistory} title={`${MOD}+H`}>
           <Icon name="solar:history-bold" size={14} />
-          <span>히스토리</span>
+          <span>{t('toolbar.history')}</span>
         </button>
         <button type="button" className="btn ghost" onClick={onOpenSettings} title={`${MOD}+,`}>
           <Icon name="solar:settings-bold" size={14} />
-          <span>설정</span>
+          <span>{t('toolbar.settings')}</span>
         </button>
       </div>
     </header>

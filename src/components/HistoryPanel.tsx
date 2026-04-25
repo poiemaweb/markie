@@ -1,5 +1,6 @@
 import type { HistoryEntry } from '../types';
 import { Icon } from './Icon';
+import { t } from '../i18n';
 
 interface HistoryPanelProps {
   entries: HistoryEntry[];
@@ -15,26 +16,26 @@ function formatTime(ts: number): string {
   const sameDay = d.toDateString() === now.toDateString();
   const pad = (n: number) => n.toString().padStart(2, '0');
   const time = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  if (sameDay) return `오늘 ${time}`;
+  if (sameDay) return `${t('history.today')} ${time}`;
   return `${d.getMonth() + 1}/${d.getDate()} ${time}`;
 }
 
 export function HistoryPanel({ entries, onClose, onSelect, onDelete, onClear }: HistoryPanelProps) {
   return (
-    <aside className="slide-panel" role="dialog" aria-label="히스토리">
+    <aside className="slide-panel" role="dialog" aria-label={t('history.title')}>
       <div className="slide-panel-header">
-        <h2>히스토리</h2>
+        <h2>{t('history.title')}</h2>
         <div className="row-gap">
           <button type="button" className="btn ghost" onClick={onClear} disabled={entries.length === 0}>
-            전체 삭제
+            {t('history.clear')}
           </button>
           <button type="button" className="btn" onClick={onClose}>
-            닫기
+            {t('settings.close')}
           </button>
         </div>
       </div>
       {entries.length === 0 ? (
-        <div className="empty-inline">아직 저장된 항목이 없습니다.</div>
+        <div className="empty-inline">{t('history.empty')}</div>
       ) : (
         <ul className="history-list">
           {entries.map((entry) => (
@@ -43,12 +44,12 @@ export function HistoryPanel({ entries, onClose, onSelect, onDelete, onClear }: 
                 <div className="history-meta">
                   <span className="history-time">{formatTime(entry.createdAt)}</span>
                 </div>
-                <div className="history-preview">{entry.preview || '(빈 내용)'}</div>
+                <div className="history-preview">{entry.preview || t('history.emptyContent')}</div>
               </button>
               <button
                 type="button"
                 className="history-delete"
-                aria-label="삭제"
+                aria-label={t('history.delete')}
                 onClick={() => onDelete(entry.id)}
               >
                 <Icon name="solar:close-circle-bold" size={16} />
