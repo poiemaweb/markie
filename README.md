@@ -13,7 +13,7 @@ An ultra-lightweight companion that renders markdown text beautifully — paste,
 
 <!-- TODO: replace with a real GIF before v0.2.0 release -->
 <!-- ![Markie demo](docs/demo.gif) -->
-_A short demo GIF will appear here in `v0.2.0`._
+_A short demo GIF will appear here in `v0.2.0`. See [`docs/DEMO_GUIDE.md`](./docs/DEMO_GUIDE.md) for the recording recipe._
 
 ---
 
