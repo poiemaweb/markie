@@ -1,7 +1,7 @@
 # Markie
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Release](https://img.shields.io/github/v/release/poiemaweb/markdown-viewer?include_prereleases&sort=semver)](https://github.com/poiemaweb/markdown-viewer/releases)
+[![Release](https://img.shields.io/github/v/release/poiemaweb/markie?include_prereleases&sort=semver)](https://github.com/poiemaweb/markie/releases)
 
 An ultra-lightweight companion that renders markdown text beautifully — paste, drag, or import, and see the result instantly. Ships as a web app and a tray-resident desktop app (macOS / Windows / Linux) via Tauri 2.
 
@@ -11,15 +11,15 @@ An ultra-lightweight companion that renders markdown text beautifully — paste,
 
 ## Demo
 
-<!-- TODO: replace with a real GIF before v0.2.0 release -->
-<!-- ![Markie demo](docs/demo.gif) -->
-_A short demo GIF will appear here in `v0.2.0`. See [`docs/DEMO_GUIDE.md`](./docs/DEMO_GUIDE.md) for the recording recipe._
+![Markie demo — paste, render, export](docs/markie-demo.gif)
+
+_Recording recipe: see [`docs/DEMO_GUIDE.md`](./docs/DEMO_GUIDE.md)._
 
 ---
 
 ## Install
 
-Pre-built desktop bundles are attached to each [GitHub Release](https://github.com/poiemaweb/markdown-viewer/releases):
+Pre-built desktop bundles are attached to each [GitHub Release](https://github.com/poiemaweb/markie/releases):
 
 | Platform | Asset |
 | --- | --- |
@@ -27,7 +27,7 @@ Pre-built desktop bundles are attached to each [GitHub Release](https://github.c
 | Windows | `Markie_x.y.z_x64-setup.msi` |
 | Linux  | `markie_x.y.z_amd64.AppImage` / `.deb` |
 
-For the web build, open the latest [`gh-pages`](https://poiemaweb.github.io/markdown-viewer/) deployment (planned for `v0.2.0`).
+For the web build, open the latest [`gh-pages`](https://poiemaweb.github.io/markie/) deployment (planned for `v0.2.0`).
 
 > First public release (`v0.2.0`) is not yet tagged — until then, build from source as shown in **Quick Start**.
 

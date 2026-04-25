@@ -13,6 +13,7 @@ The contract becomes stable at `1.0.0`.
 ### Added
 - CI workflow (`.github/workflows/ci.yml`) — typecheck + build on push and PR.
 - Demo GIF recording guide (`docs/DEMO_GUIDE.md`).
+- Demo GIF (`docs/markie-demo.gif`) — paste → render → export, embedded in README.
 
 ### Changed
 - **PDF export** now splits tall content across standard A4 pages (`595×842pt`) instead of producing a single oversized custom-format page. Page boundaries fall at fixed A4 heights, so very long lines or code blocks may split mid-content; revisit with print-CSS pagination later if needed.
@@ -56,5 +57,5 @@ Initial release of **Markie** — a lightweight desktop/web companion for instan
 - Removed platform-detection auto-hint from preview pane.
 - Default platform set to Raw Markdown; platform selector UI removed.
 
-[Unreleased]: https://github.com/poiemaweb/markdown-viewer/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/poiemaweb/markdown-viewer/releases/tag/v0.1.0
+[Unreleased]: https://github.com/poiemaweb/markie/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/poiemaweb/markie/releases/tag/v0.1.0
