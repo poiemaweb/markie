@@ -24,8 +24,11 @@ jobs:
         include:
           - platform: macos-latest
             args: "--target universal-apple-darwin"
+          # AppImage bundling via linuxdeploy is flaky on GitHub Actions runners
+          # (network/FUSE issues). Ship deb + rpm only; AppImage can be revisited
+          # once we self-host or pin a working linuxdeploy binary.
           - platform: ubuntu-22.04
-            args: ""
+            args: "--bundles deb,rpm"
           - platform: windows-latest
             args: ""
 
