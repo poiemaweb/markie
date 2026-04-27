@@ -1,11 +1,10 @@
 # Markie
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Release](https://img.shields.io/github/v/release/poiemaweb/markie?include_prereleases&sort=semver)](https://github.com/poiemaweb/markie/releases)
 
 An ultra-lightweight companion that renders markdown text beautifully — paste, drag, or import, and see the result instantly. Ships as a web app and a tray-resident desktop app (macOS / Windows / Linux) via Tauri 2.
 
-> **Status:** `0.1.x` — early preview. APIs, shortcuts, and storage formats may change before `1.0`. See [CHANGELOG.md](./CHANGELOG.md).
+> **Status:** `0.2.x` — public alpha. APIs, shortcuts, and storage formats may change before `1.0`. See [CHANGELOG.md](./CHANGELOG.md).
 
 ---
 
@@ -19,17 +18,16 @@ _Recording recipe: see [`docs/DEMO_GUIDE.md`](./docs/DEMO_GUIDE.md)._
 
 ## Install
 
-Pre-built desktop bundles are attached to each [GitHub Release](https://github.com/poiemaweb/markie/releases):
+Pre-built desktop bundles for every release are attached to [GitHub Releases](https://github.com/poiemaweb/markie/releases). Latest:
 
-| Platform | Asset |
-| --- | --- |
-| macOS  | `Markie_x.y.z_universal.dmg` |
-| Windows | `Markie_x.y.z_x64-setup.msi` |
-| Linux  | `markie_x.y.z_amd64.AppImage` / `.deb` |
+| Platform | Asset | Install |
+| --- | --- | --- |
+| macOS (universal) | `Markie_x.y.z_universal.dmg` | open the `.dmg`, drag Markie to Applications |
+| Windows (x64) | `Markie_x.y.z_x64-setup.exe` or `.msi` | run the installer |
+| Linux (Debian/Ubuntu) | `Markie_x.y.z_amd64.deb` | `sudo dpkg -i Markie_*.deb` |
+| Linux (Fedora/RHEL) | `Markie-x.y.z-1.x86_64.rpm` | `sudo rpm -i Markie-*.rpm` |
 
-For the web build, open the latest [`gh-pages`](https://poiemaweb.github.io/markie/) deployment (planned for `v0.2.0`).
-
-> First public release (`v0.2.0`) is not yet tagged — until then, build from source as shown in **Quick Start**.
+> AppImage is intentionally skipped while `linuxdeploy` remains unreliable on GitHub-hosted runners. Build locally via `npm run tauri:build` if you need it. A web preview deployed to GitHub Pages is planned for a later release.
 
 ---
 

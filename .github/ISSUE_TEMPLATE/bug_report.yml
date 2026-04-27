@@ -1,0 +1,74 @@
+name: Bug report
+description: Something is broken or not behaving as documented.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Please fill in as much of the form as you can — _especially the reproduction steps and version_ — so we can fix it quickly.
+
+  - type: input
+    id: version
+    attributes:
+      label: Markie version
+      description: Found in `Settings` panel, the title bar, or `package.json`.
+      placeholder: "e.g. 0.2.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where did this happen?
+      options:
+        - Desktop app (macOS)
+        - Desktop app (Windows)
+        - Desktop app (Linux .deb)
+        - Desktop app (Linux .rpm)
+        - Web (npm run dev)
+        - Web (production build)
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Smallest possible sequence that triggers the bug.
+      placeholder: |
+        1. Open Markie
+        2. Paste this markdown: ```...```
+        3. Click "Export PDF"
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include screenshots, error messages, or console output if relevant.
+    validations:
+      required: true
+
+  - type: textarea
+    id: input
+    attributes:
+      label: Input markdown (if relevant)
+      description: The exact markdown text that triggered the bug. Wrap in a fenced block.
+      render: markdown
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: OS version, hardware specifics, similar past issues, theories about the cause, etc.
