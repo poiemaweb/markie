@@ -27,7 +27,9 @@ Pre-built desktop bundles for every release are attached to [GitHub Releases](ht
 | Linux (Debian/Ubuntu) | `Markie_x.y.z_amd64.deb` | `sudo dpkg -i Markie_*.deb` |
 | Linux (Fedora/RHEL) | `Markie-x.y.z-1.x86_64.rpm` | `sudo rpm -i Markie-*.rpm` |
 
-> AppImage is intentionally skipped while `linuxdeploy` remains unreliable on GitHub-hosted runners. Build locally via `npm run tauri:build` if you need it. A web preview deployed to GitHub Pages is planned for a later release.
+> AppImage is intentionally skipped while `linuxdeploy` remains unreliable on GitHub-hosted runners. Build locally via `npm run tauri:build` if you need it.
+
+A web preview is deployed to GitHub Pages on every push to `main`: **<https://poiemaweb.github.io/markie/>** _(activates once the repo is public or the org has a GitHub plan that supports Pages on private repos)_.
 
 ---
 

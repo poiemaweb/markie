@@ -1,0 +1,72 @@
+name: Deploy web demo to GitHub Pages
+
+# Builds the static web bundle with /markie/ base path and publishes
+# it to https://poiemaweb.github.io/markie/ via GitHub Pages.
+#
+# Prerequisite (one-time): in repo Settings → Pages, set
+#   "Build and deployment" → Source: "GitHub Actions"
+# Private repos require GitHub Pro / Team / Enterprise to use Pages.
+# If the repo is on a free plan, make it public first.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "index.html"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - "tsconfig.json"
+      - "tsconfig.node.json"
+      - "tailwind.config.js"
+      - "postcss.config.js"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# Single deployment at a time; cancel any older queued run.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build static bundle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build with Pages base path
+        run: npm run build:pages
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
